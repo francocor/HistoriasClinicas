@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/select";
 import { Bell, Book, Heart, Home, Settings, User } from "lucide-react";
 import React from "react";
+import BotonHarmonia from "@/components/ui/BotonHarmonia"
 
 export default function Recetas() {
   const platforms = [
@@ -59,12 +60,10 @@ export default function Recetas() {
                       className="object-contain max-h-[160px]"
                     />
                   </div>
-                  <Button
-                    variant="ghost"
-                    className="rounded-[20px] w-[116px] h-[39px] font-montserrat text-xl"
+                  <BotonHarmonia
                   >
                     Generar
-                  </Button>
+                  </BotonHarmonia>
                 </CardContent>
               </Card>
             ))}

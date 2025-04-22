@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import FiltrosGraficos from "@/components/graficos/FiltrosGraficos";
+import FiltrosComparacionGraficos from "@/components/graficos/FiltrosComparacionGraficos";
 import GraficoBarras from "@/components/graficos/GraficoBarras";
 import ComparacionGraficos from "@/components/graficos/ComparacionGraficos";
+import BotonHarmonia from "@/components/ui/BotonHarmonia";
 
 export default function Balance() {
   const [tipoGrafico, setTipoGrafico] = useState("bar");
@@ -23,7 +25,12 @@ export default function Balance() {
       </section>
 
       {comparar && (
-        <section className="mt-10">
+        <section className="mt-10 space-y-6">
+          <h2 className="text-2xl font-montserrat">Filtros para comparar</h2>
+          <FiltrosComparacionGraficos
+            tipoGrafico={tipoGrafico}
+            setTipoGrafico={setTipoGrafico}
+          />
           <ComparacionGraficos />
         </section>
       )}
@@ -31,11 +38,20 @@ export default function Balance() {
       <section className="mt-10">
         <h2 className="text-2xl font-montserrat mb-2">Notas:</h2>
         <textarea
-          className="w-full h-[100px] border border-black p-2 rounded-md"
+          className="w-full h-[100px] border border-black p-2 rounded-[20px] shadow-sm"
           placeholder="Escriba sus notas o comentarios sobre los resultados..."
         />
+
+        <div className="flex justify-end mt-4 space-x-4">
+          <BotonHarmonia>Guardar Nota</BotonHarmonia>
+
+          <BotonHarmonia>Limpiar</BotonHarmonia>
+
+          <BotonHarmonia onClick={() => setComparar(!comparar)}>
+            {comparar ? "Quitar comparación" : "Activar comparación"}
+          </BotonHarmonia>
+        </div>
       </section>
     </main>
   );
 }
-

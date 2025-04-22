@@ -3,6 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
+import BotonHarmonia from "@/components/ui/BotonHarmonia";
+
 
 export default function FiltrosGraficos({ tipoGrafico, setTipoGrafico, comparar, setComparar }) {
   return (
@@ -62,12 +64,12 @@ export default function FiltrosGraficos({ tipoGrafico, setTipoGrafico, comparar,
 
       {/* Acciones */}
       <div className="flex items-center gap-4 col-span-full mt-4">
-        <Button className="rounded-full bg-white shadow-md text-black text-lg px-6">
+        <BotonHarmonia>
           Aceptar
-        </Button>
-        <Button variant="ghost" className="text-black text-lg px-6">
+        </BotonHarmonia>
+        <BotonHarmonia>
           Limpiar
-        </Button>
+        </BotonHarmonia>
 
         <label className="font-montserrat text-lg ml-auto">Tipo de gráfico:</label>
         <Select
@@ -86,7 +88,7 @@ export default function FiltrosGraficos({ tipoGrafico, setTipoGrafico, comparar,
 
         <Button
           variant="outline"
-          className="rounded-full ml-4 text-black border border-black"
+          cclassName="w-[191px] h-[29px] rounded-[40px] bg-gradient-to-b from-[#179cba] to-white text-xl font-normal text-black font-sans"
           onClick={() => setComparar(!comparar)}
         >
           {comparar ? "Quitar comparación" : "Activar comparación"}

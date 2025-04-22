@@ -1,21 +1,27 @@
 import React from "react";
-import TurnosHeader from "./TurnosHeader";
-import TurnosList from "./TurnosList";
-import AsignarTurnoBox from "./AsignarTurnoBox";
+import TurnosHeader from "@/components/turnos/TurnosHeader";
+import TurnosList from "@/components/turnos/TurnosList";
+import AsignarTurnoBox from "@/components/turnos/AsignarTurnoBox";
 
 export default function Turnos() {
   return (
-    <div className="flex h-screen w-full">
-      {/* Layout global maneja Sidebar y Header */}
+    <div className="flex flex-col items-center w-full">
+      {/* Header con título y buscador */}
+      <div className="w-full max-w-[1300px] mb-6">
+        <TurnosHeader />
+      </div>
 
-      <div className="flex-1 flex flex-col">
-        <main className="flex-1 bg-white p-4">
-          <TurnosHeader />
-          <div className="flex flex-col lg:flex-row gap-8 mt-8">
-            <TurnosList />
-            <AsignarTurnoBox />
-          </div>
-        </main>
+      {/* Contenedor principal con lista y box */}
+      <div className="w-full max-w-[1300px] flex flex-col lg:flex-row justify-center lg:justify-between gap-10">
+        {/* Lista de turnos */}
+        <div className="flex-1">
+          <TurnosList />
+        </div>
+
+        {/* Box para asignar turno */}
+        <div className="flex-1 flex justify-center">
+          <AsignarTurnoBox />
+        </div>
       </div>
     </div>
   );

@@ -6,13 +6,15 @@ export default function TurnosHeader() {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       {/* Título */}
-      <h1 className="text-4xl font-sans font-normal text-black">
-        Turnos
-      </h1>
-
-      {/* Buscador + ícono */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
+        <h1 className="text-4xl font-sans font-normal text-black">
+          Turnos
+        </h1>
         <Calendar className="w-8 h-8 text-black" />
+      </div>
+
+      {/* Buscador  */}
+      <div className="flex items-center gap-4">
         <div className="relative">
           <Input
             className="w-[250px] sm:w-[310px] h-[54px] border-2 border-black"

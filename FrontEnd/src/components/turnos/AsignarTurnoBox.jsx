@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import TurnoPaciente from "@/components/turnos/TurnoPaciente";
 import TurnoNuevoPaciente from "@/components/turnos/TurnoNuevoPaciente";
+import BotonHarmonia from "@/components/ui/BotonHarmonia";
 
 export default function AsignarTurnoBox() {
   const [showTurnoPaciente, setShowTurnoPaciente] = useState(false);
@@ -37,19 +38,17 @@ export default function AsignarTurnoBox() {
 
           {/* Botones */}
           <div className="flex flex-col items-center gap-2">
-            <Button
+            <BotonHarmonia
               onClick={handleNuevoTurno}
-              className="w-[149px] h-[29px] rounded-[40px] bg-gradient-to-b from-[#179cba] to-white text-xl font-normal text-black font-sans"
             >
               Nuevo turno
-            </Button>
+            </BotonHarmonia>
 
-            <Button
+            <BotonHarmonia
               onClick={handleNuevoPaciente}
-              className="w-[191px] h-[29px] rounded-[40px] bg-gradient-to-b from-[#179cba] to-white text-xl font-normal text-black font-sans"
             >
               Nuevo Paciente
-            </Button>
+            </BotonHarmonia>
           </div>
         </CardContent>
       </Card>

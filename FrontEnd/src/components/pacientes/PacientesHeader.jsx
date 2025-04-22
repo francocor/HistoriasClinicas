@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Filter, Search } from "lucide-react";
+import BotonHarmonia from "@/components/ui/botonHarmonia";
 import React from "react";
 
 export default function PacientesHeader() {
@@ -9,9 +10,9 @@ export default function PacientesHeader() {
       {/* Título y botón */}
       <div className="flex flex-col gap-2">
         <h1 className="font-normal text-4xl">Pacientes</h1>
-        <Button className="w-[250px] sm:w-[285px] h-[49px] rounded-[40px] shadow-[8px_8px_1.9px_#00000040] text-[18px] sm:text-[23px] font-normal">
+        <BotonHarmonia>
           Generar Historia Clínica
-        </Button>
+        </BotonHarmonia>
       </div>
 
       {/* Buscador y filtros */}

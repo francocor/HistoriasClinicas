@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import BotonHarmonia from "@/components/ui/botonHarmonia";
 
 export default function PacientesCard({ patient }) {
   return (
@@ -24,9 +25,9 @@ export default function PacientesCard({ patient }) {
             <div className="font-normal text-xl sm:text-[32px] mb-2">
               {patient.insurance}
             </div>
-            <Button className="w-[125px] h-9 rounded-[25px] shadow-[8px_8px_1.9px_#00000040] font-normal text-[20px] sm:text-[28px] py-0">
+            <BotonHarmonia>
               Ficha
-            </Button>
+            </BotonHarmonia>
           </div>
 
         </div>

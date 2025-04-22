@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import BotonHarmonia from "@/components/ui/BotonHarmonia";
 
 export default function TurnoCard({ patientName, appointmentDate, doctor }) {
   const navigate = useNavigate();
@@ -13,34 +14,33 @@ export default function TurnoCard({ patientName, appointmentDate, doctor }) {
           <span className="text-xl font-sans font-medium text-black">
             {patientName}
           </span>
-          <Button
+          <BotonHarmonia
             onClick={() => navigate("/atencion")}
-            className="w-[95px] h-8 rounded-[40px] shadow-md text-sm text-black bg-white hover:bg-gray-100"
           >
             Presente
-          </Button>
+          </BotonHarmonia>
         </div>
 
         {/* Fecha del turno */}
         <div className="flex justify-between items-center">
           <span className="text-xl font-sans text-black">{appointmentDate}</span>
-          <Button
+          <BotonHarmonia
             onClick={() => navigate("/atencion")}
-            className="w-[95px] h-8 rounded-[40px] shadow-md text-sm text-black bg-white hover:bg-gray-100"
+            
           >
             Ausente
-          </Button>
+          </BotonHarmonia>
         </div>
 
         {/* Médico tratante */}
         <div className="flex justify-between items-center">
           <span className="text-xl font-sans text-black">{doctor}</span>
-          <Button
+          <BotonHarmonia
             onClick={() => navigate("/atencion")}
-            className="w-[95px] h-8 rounded-[40px] shadow-md text-sm text-black bg-white hover:bg-gray-100"
+            
           >
             Editar
-          </Button>
+          </BotonHarmonia>
         </div>
       </CardContent>
     </Card>
