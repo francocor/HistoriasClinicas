@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Download } from "lucide-react";
+import BotonHarmonia from "@/components/ui/botonHarmonia";
 
 export default function FichaPacienteHeader() {
   const navigate = useNavigate();
@@ -25,20 +26,20 @@ export default function FichaPacienteHeader() {
         </h3>
 
         <div className="flex flex-col sm:flex-row justify-between gap-4">
-          <Button
+          <BotonHarmonia
             onClick={() => navigate("/historia-clinica")}
-            className="rounded-[40px] shadow-md h-[49px] bg-white text-black hover:bg-gray-100"
+            
           >
             <span className="text-2xl font-sans font-normal">Historia Clínica</span>
-          </Button>
+          </BotonHarmonia>
 
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button className="rounded-[40px] bg-white text-black shadow-[8px_8px_1.9px_rgba(0,0,0,0.25)] flex items-center gap-2 px-4 h-[49px] hover:bg-gray-100">
+            <BotonHarmonia>
               <span className="text-xl font-sans font-normal">
                 Descargar info del paciente
               </span>
               <Download className="w-6 h-6" />
-            </Button>
+            </BotonHarmonia>
 
             <Button
               onClick={() => navigate("/atencion")}

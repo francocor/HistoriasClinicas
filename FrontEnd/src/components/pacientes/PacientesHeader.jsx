@@ -3,14 +3,17 @@ import { Input } from "@/components/ui/input";
 import { Filter, Search } from "lucide-react";
 import BotonHarmonia from "@/components/ui/botonHarmonia";
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function PacientesHeader() {
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
       {/* Título y botón */}
       <div className="flex flex-col gap-2">
         <h1 className="font-normal text-4xl">Pacientes</h1>
-        <BotonHarmonia>
+        <BotonHarmonia onClick={() => navigate("/historia-clinica")}>
           Generar Historia Clínica
         </BotonHarmonia>
       </div>

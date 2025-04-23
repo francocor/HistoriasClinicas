@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { Calendar } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import TurnoPaciente from "@/components/turnos/TurnoPaciente";
 import TurnoNuevoPaciente from "@/components/turnos/TurnoNuevoPaciente";
 import BotonHarmonia from "@/components/ui/BotonHarmonia";
 
-export default function AsignarTurnoBox() {
+export default function AsignarTurnoBox({ modo = "profesional", doctores = [] }) {
   const [showTurnoPaciente, setShowTurnoPaciente] = useState(false);
   const [showTurnoNuevoPaciente, setShowTurnoNuevoPaciente] = useState(false);
 
@@ -38,24 +37,19 @@ export default function AsignarTurnoBox() {
 
           {/* Botones */}
           <div className="flex flex-col items-center gap-2">
-            <BotonHarmonia
-              onClick={handleNuevoTurno}
-            >
-              Nuevo turno
-            </BotonHarmonia>
-
-            <BotonHarmonia
-              onClick={handleNuevoPaciente}
-            >
-              Nuevo Paciente
-            </BotonHarmonia>
+            <BotonHarmonia onClick={handleNuevoTurno}>Nuevo turno</BotonHarmonia>
+            <BotonHarmonia onClick={handleNuevoPaciente}>Nuevo Paciente</BotonHarmonia>
           </div>
         </CardContent>
       </Card>
 
       {/* Formularios condicionales */}
-      {showTurnoPaciente && <TurnoPaciente />}
-      {showTurnoNuevoPaciente && <TurnoNuevoPaciente />}
+      {showTurnoPaciente && (
+        <TurnoPaciente modo={modo} doctores={doctores} />
+      )}
+      {showTurnoNuevoPaciente && (
+        <TurnoNuevoPaciente modo={modo} doctores={doctores} />
+      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import FormSection from "./FormSection";
+import BotonHarmonia from "@/components/ui/botonHarmonia";
 
 // Estructura de datos de prueba
 const sections = [
@@ -54,12 +55,12 @@ export default function HistoriaClinicaForm() {
 
         {/* Botones de acción */}
         <div className="flex justify-center mt-6 gap-6">
-          <Button className="w-[158px] h-[50px] rounded-[40px] shadow-[8px_8px_1.9px_rgba(0,0,0,0.25)] text-[22px] font-sans">
+          <BotonHarmonia>
             Aceptar
-          </Button>
-          <Button className="w-[158px] h-[50px] rounded-[40px] shadow-[8px_8px_1.9px_rgba(0,0,0,0.25)] text-[22px] font-sans">
+          </BotonHarmonia>
+          <BotonHarmonia>
             Cancelar
-          </Button>
+          </BotonHarmonia>
         </div>
       </CardContent>
     </ScrollArea>

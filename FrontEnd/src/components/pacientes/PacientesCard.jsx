@@ -1,14 +1,15 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import BotonHarmonia from "@/components/ui/botonHarmonia";
+import { useNavigate } from "react-router-dom";
 
 export default function PacientesCard({ patient }) {
+  const navigate = useNavigate();
+
   return (
     <Card className="border border-black rounded-none shadow-sm">
       <CardContent className="p-4">
         <div className="flex justify-between items-center">
-          
           {/* Datos del Paciente */}
           <div>
             <div className="font-normal text-2xl sm:text-[32px]">
@@ -25,11 +26,10 @@ export default function PacientesCard({ patient }) {
             <div className="font-normal text-xl sm:text-[32px] mb-2">
               {patient.insurance}
             </div>
-            <BotonHarmonia>
+            <BotonHarmonia onClick={() => navigate("/ficha-paciente")}>
               Ficha
             </BotonHarmonia>
           </div>
-
         </div>
       </CardContent>
     </Card>

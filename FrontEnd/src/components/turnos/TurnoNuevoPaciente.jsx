@@ -1,80 +1,75 @@
-import { Button } from "@/components/ui/button";
+import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { ChevronDown, X } from "lucide-react";
-import React from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 
-export default function TurnoNuevoPaciente({ onClose }) {
-  const formFields = [
-    { id: "nombre", label: "Nombre", type: "text" },
-    { id: "apellido", label: "Apellido", type: "text" },
-    { id: "dni", label: "D.N.I", type: "text" },
-    { id: "fecha", label: "Fecha", type: "text" },
-    { id: "hora", label: "Hora", type: "text" },
-    { id: "osocial", label: "O. social", type: "text" },
-    { id: "cobro", label: "Cobro", type: "text" },
+export default function TurnoNuevoPaciente({ modo = "profesional", doctores = [] }) {
+  const campos = [
+    { id: "nombre", label: "Nombre" },
+    { id: "apellido", label: "Apellido" },
+    { id: "dni", label: "DNI" },
+    { id: "fecha", label: "Fecha" },
+    { id: "hora", label: "Hora" },
+    { id: "osocial", label: "Obra Social" },
+    { id: "cobro", label: "Cobro" },
   ];
 
   return (
     <div className="flex justify-center w-full">
-      <Card className="w-[377px] rounded-[20px] overflow-hidden relative">
+      <Card className="w-[377px] rounded-[20px] overflow-hidden">
         <CardContent className="p-4 space-y-3">
-          {/* Botón cerrar */}
-          <button
-            onClick={onClose}
-            className="absolute top-2 right-2 text-black hover:text-red-600 transition-colors"
-            title="Cerrar formulario"
-          >
-            <X className="w-5 h-5" />
-          </button>
-
-          {/* Campos del formulario */}
-          {formFields.map((field) => (
-            <div key={field.id} className="flex items-center">
-              <label
-                htmlFor={field.id}
-                className="w-24 font-normal text-black text-base"
-              >
-                {field.label}
+          {campos.map((campo) => (
+            <div key={campo.id} className="flex items-center">
+              <label htmlFor={campo.id} className="w-24 text-black text-sm">
+                {campo.label}
               </label>
               <Input
-                id={field.id}
-                type={field.type}
-                className="h-[17px] border border-solid border-black bg-white rounded-none"
+                id={campo.id}
+                className="h-[28px] border border-black bg-white rounded-md flex-1"
               />
             </div>
           ))}
 
-          {/* Campo de profesional */}
+          {/* Profesional */}
           <div className="flex items-center">
-            <label
-              htmlFor="professional"
-              className="w-24 font-normal text-black text-base"
-            >
-              Profesional
-            </label>
-            <div className="flex items-center">
+            <label className="w-24 text-black text-sm">Profesional</label>
+            {modo === "secretaria" && doctores.length > 0 ? (
+              <Select>
+                <SelectTrigger className="h-[28px] border border-black bg-white rounded-md w-full">
+                  <SelectValue placeholder="Seleccione médico" />
+                </SelectTrigger>
+                <SelectContent>
+                  {doctores.map((doc) => (
+                    <SelectItem key={doc.id} value={doc.id.toString()}>
+                      {doc.nombre}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
               <Input
-                id="professional"
-                className="w-[107px] h-[17px] border border-solid border-black bg-white rounded-none"
                 readOnly
+                value="Dr. Pepito Fernández"
+                className="h-[28px] border border-black bg-white rounded-md flex-1"
               />
-              <ChevronDown className="w-[15px] h-[19px] ml-2" />
-            </div>
+            )}
           </div>
 
-          {/* Botones de acción */}
-          <div className="flex justify-center space-x-10 mt-6">
-            <Button
-              variant="outline"
-              className="rounded-[40px] px-4 py-1.5 border border-black bg-gradient-to-b from-cyan-300 to-cyan-500 text-black"
-            >
+          {/* Botones */}
+          <div className="flex justify-between mt-4">
+            <Button className="rounded-[40px] px-4 bg-gradient-to-b from-cyan-300 to-cyan-500 text-black">
               Grabar
             </Button>
             <Button
               variant="outline"
-              className="rounded-[40px] px-4 py-1.5 border border-black bg-gradient-to-b from-cyan-300 to-cyan-500 text-black"
-              onClick={onClose}
+              className="rounded-[40px] px-4 border-black text-black"
             >
               Cancelar
             </Button>

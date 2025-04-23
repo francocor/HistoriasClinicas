@@ -11,91 +11,67 @@ import {
 } from "@/components/ui/select";
 import { Search } from "lucide-react";
 
-// Datos del formulario
-const formFields = [
-  { id: "nombre", label: "Nombre:", type: "text" },
-  { id: "apellido", label: "Apellido:", type: "text" },
-  { id: "dni", label: "D.N.I:", type: "text" },
-  { id: "osocial", label: "O. social:", type: "text" },
-];
-
-export default function TurnoPaciente({ onCancel }) {
+export default function TurnoPaciente({ modo = "profesional", doctores = [] }) {
   return (
-    <div className="bg-transparent flex flex-row justify-center w-full">
-      <Card className="rounded-[20px] w-[254px] h-[310px] relative overflow-hidden">
-        <CardContent className="p-0">
-          {/* Barra de búsqueda */}
-          <div className="relative mt-[11px] mx-[22px]">
-            <div className="relative">
-              <Input
-                className="h-[17px] pl-6 py-0 text-base border-black bg-white font-['Inter-Regular',Helvetica]"
-                placeholder="Buscar Paciente..."
-              />
-              <Search className="absolute w-[15px] h-[15px] top-[1px] left-0.5 text-[#969191]" />
-            </div>
+    <div className="flex justify-center w-full">
+      <Card className="rounded-[20px] w-[254px] h-auto">
+        <CardContent className="p-4">
+          {/* Buscador */}
+          <div className="relative mb-4">
+            <Input placeholder="Buscar Paciente..." className="pl-8 border-black" />
+            <Search className="absolute left-2 top-2 w-4 h-4 text-gray-500" />
           </div>
 
-          {/* Información del paciente */}
-          <div className="mx-[22px] mt-3">
-            <Card className="border border-solid border-black">
-              <CardContent className="p-0">
-                <div className="p-[9px] relative">
-                  <div className="absolute top-0 left-[72px] font-['Inter-Regular',Helvetica] text-black text-base">
-                    Paciente
-                  </div>
-
-                  {formFields.map((field) => (
-                    <div key={field.id} className="mt-[19px] first:mt-[30px]">
-                      <div className="flex">
-                        <label
-                          htmlFor={field.id}
-                          className="font-['Inter-Regular',Helvetica] text-black text-base"
-                        >
-                          {field.label}
-                        </label>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          {/* Datos del paciente */}
+          <Card className="border border-black mb-4">
+            <CardContent className="p-3 space-y-2">
+              <h3 className="text-center font-semibold">Paciente</h3>
+              <p>Nombre:</p>
+              <p>Apellido:</p>
+              <p>DNI:</p>
+              <p>Obra Social:</p>
+            </CardContent>
+          </Card>
 
           {/* Profesional */}
-          <div className="mt-[10px] mx-[22px] flex items-center">
-            <label className="font-['Inter-Regular',Helvetica] text-black text-base">
-              Profesional:
-            </label>
-            <div className="ml-2 flex-1">
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1">Profesional:</label>
+            {modo === "secretaria" && doctores.length > 0 ? (
               <Select>
-                <SelectTrigger className="h-[17px] py-0 border-black bg-white">
-                  <SelectValue placeholder="" />
+                <SelectTrigger className="w-full h-8 border-black">
+                  <SelectValue placeholder="Seleccione médico" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="prof1">Profesional 1</SelectItem>
-                  <SelectItem value="prof2">Profesional 2</SelectItem>
+                  {doctores.map((doc) => (
+                    <SelectItem key={doc.id} value={doc.id.toString()}>
+                      {doc.nombre}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-            </div>
+            ) : (
+              <Input
+                value="Dr. Pepito Fernández"
+                readOnly
+                className="w-full h-8 border-black"
+              />
+            )}
           </div>
 
           {/* Cobro */}
-          <div className="mt-[10px] mx-[22px]">
-            <label className="font-['Inter-Regular',Helvetica] text-black text-base">
-              Cobro:
-            </label>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1">Cobro:</label>
+            <Input className="w-full h-8 border-black" />
           </div>
 
-          {/* Botones de acción */}
-          <div className="flex justify-between mt-[10px] mx-[22px]">
-            <Button className="rounded-[40px] font-['Inter-Regular',Helvetica] text-black text-base bg-gradient-to-b from-[#87CEEB] to-[#5F9EA0]">
+          {/* Botones */}
+          <div className="flex justify-between">
+            <Button className="rounded-[40px] bg-gradient-to-b from-cyan-300 to-cyan-500 text-black px-4">
               Grabar
             </Button>
-
             <Button
               variant="outline"
-              onClick={onCancel}
-              className="rounded-[40px] font-['Inter-Regular',Helvetica] text-black text-base bg-gradient-to-b from-[#87CEEB] to-[#5F9EA0]"
+              className="rounded-[40px] border-black text-black px-4"
             >
               Cancelar
             </Button>
