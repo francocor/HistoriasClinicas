@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,23 @@ import {
 } from "@/components/ui/select";
 import { Search } from "lucide-react";
 
-export default function TurnoPaciente({ modo = "profesional", doctores = [] }) {
+export default function TurnoPaciente({ modo = "profesional", doctores = [], onAgregarTurno }) {
+  const [cobro, setCobro] = useState("");
+  const [doctorSeleccionado, setDoctorSeleccionado] = useState("");
+
+  const handleGrabar = () => {
+    const nuevoTurno = {
+      id: Date.now(),
+      patientName: "Paciente Ejemplo",
+      appointmentDate: "15/05/2024 - 09:00hs",
+      doctor: modo === "secretaria" && doctorSeleccionado
+        ? doctores.find((d) => d.id.toString() === doctorSeleccionado)?.nombre || "Profesional"
+        : "Dr. Pepito Fernández",
+    };
+
+    onAgregarTurno(nuevoTurno);
+  };
+
   return (
     <div className="flex justify-center w-full">
       <Card className="rounded-[20px] w-[254px] h-auto">
@@ -37,7 +53,7 @@ export default function TurnoPaciente({ modo = "profesional", doctores = [] }) {
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Profesional:</label>
             {modo === "secretaria" && doctores.length > 0 ? (
-              <Select>
+              <Select onValueChange={setDoctorSeleccionado}>
                 <SelectTrigger className="w-full h-8 border-black">
                   <SelectValue placeholder="Seleccione médico" />
                 </SelectTrigger>
@@ -61,12 +77,19 @@ export default function TurnoPaciente({ modo = "profesional", doctores = [] }) {
           {/* Cobro */}
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Cobro:</label>
-            <Input className="w-full h-8 border-black" />
+            <Input
+              className="w-full h-8 border-black"
+              value={cobro}
+              onChange={(e) => setCobro(e.target.value)}
+            />
           </div>
 
           {/* Botones */}
           <div className="flex justify-between">
-            <Button className="rounded-[40px] bg-gradient-to-b from-cyan-300 to-cyan-500 text-black px-4">
+            <Button
+              onClick={handleGrabar}
+              className="rounded-[40px] bg-gradient-to-b from-cyan-300 to-cyan-500 text-black px-4"
+            >
               Grabar
             </Button>
             <Button

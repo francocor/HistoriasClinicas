@@ -1,43 +1,29 @@
 import React from "react";
 import TurnoCard from "./TurnoCard";
-import { Pagination, PaginationContent, PaginationItem } from "@/components/ui/pagination";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+} from "@/components/ui/pagination";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-// Turnos mock
-const appointmentData = [
-  {
-    id: 1,
-    patientName: "Juan Pérez",
-    appointmentDate: "12/05/2024 - 10:30hs",
-    doctor: "Dr. Fernández",
-  },
-  {
-    id: 2,
-    patientName: "Laura Gómez",
-    appointmentDate: "12/05/2024 - 11:00hs",
-    doctor: "Dr. Fernández",
-  },
-  {
-    id: 3,
-    patientName: "Carlos Ramírez",
-    appointmentDate: "12/05/2024 - 11:30hs",
-    doctor: "Dr. Fernández",
-  },
-];
-
-export default function TurnosList() {
+export default function TurnosList({ turnos = [] }) {
   return (
     <div className="w-full lg:w-[382px]">
       {/* Título */}
       <h2 className="text-2xl font-sans font-semibold mb-4">Próximos Turnos</h2>
 
       <div className="space-y-4">
-        {appointmentData.map((appointment) => (
-          <TurnoCard key={appointment.id} {...appointment} />
-        ))}
+        {turnos.length > 0 ? (
+          turnos.map((appointment) => (
+            <TurnoCard key={appointment.id} {...appointment} />
+          ))
+        ) : (
+          <p className="text-center text-gray-500">No hay turnos programados.</p>
+        )}
       </div>
 
-      {/* Paginación */}
+      {/* Paginación (opcional para más adelante) */}
       <Pagination className="mt-6">
         <PaginationContent className="flex justify-center items-center gap-6">
           <PaginationItem>
