@@ -9,6 +9,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import BuscadorPaciente from "@/components/ui/BuscadorPaciente";
 
 export default function Turnos({ role = "profesional" }) {
   const [selectedDoctor, setSelectedDoctor] = useState("");
@@ -32,10 +33,11 @@ export default function Turnos({ role = "profesional" }) {
   };
 
   return (
-    <main className="flex justify-center w-full px-4 py-6">
-      <div className="flex flex-col lg:flex-row w-full max-w-[1200px] gap-8">
-        {/* Lista de turnos y filtros */}
-        <div className="flex-1">
+    <main className="w-full flex justify-center px-4 py-8">
+      <div className="w-full max-w-[1300px] flex flex-col lg:flex-row items-start justify-center gap-10">
+        
+        {/* COLUMNA IZQUIERDA */}
+        <div className="w-full lg:w-2/3 flex flex-col items-start">
           <TurnosHeader />
 
           {role === "secretaria" && (
@@ -58,8 +60,12 @@ export default function Turnos({ role = "profesional" }) {
           <TurnosList turnos={turnos} />
         </div>
 
-        {/* Asignar turno */}
-        <div className="w-full lg:w-[382px]">
+        {/* COLUMNA DERECHA */}
+        <div className="w-full lg:w-[400px] flex flex-col items-center gap-6">
+          <div className="w-full">
+            <BuscadorPaciente />
+          </div>
+
           <AsignarTurnoBox
             modo={role}
             doctores={[
@@ -69,6 +75,7 @@ export default function Turnos({ role = "profesional" }) {
             onAgregarTurno={agregarTurno}
           />
         </div>
+
       </div>
     </main>
   );

@@ -4,11 +4,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import TurnoPaciente from "@/components/turnos/TurnoPaciente";
 import TurnoNuevoPaciente from "@/components/turnos/TurnoNuevoPaciente";
 import BotonHarmonia from "@/components/ui/BotonHarmonia";
+import { useNotifications } from "@/context/NotificationContext";
 
 export default function AsignarTurnoBox({ modo = "profesional", doctores = [], onAgregarTurno }) {
   const [showTurnoPaciente, setShowTurnoPaciente] = useState(false);
   const [showTurnoNuevoPaciente, setShowTurnoNuevoPaciente] = useState(false);
   const [showAgenda, setShowAgenda] = useState(false);
+
+  const { addNotification } = useNotifications();
 
   const handleNuevoTurno = () => {
     setShowTurnoPaciente(true);
@@ -26,6 +29,10 @@ export default function AsignarTurnoBox({ modo = "profesional", doctores = [], o
     setShowAgenda(true);
     setShowTurnoPaciente(false);
     setShowTurnoNuevoPaciente(false);
+
+    // Simulación de agenda y generación de notificaciones
+    addNotification("📅 Dr. Fernández tiene 3 turnos programados para mañana.");
+    addNotification("🔔 Dra. Juárez aún no tiene agenda armada para mañana.");
   };
 
   return (
@@ -40,7 +47,7 @@ export default function AsignarTurnoBox({ modo = "profesional", doctores = [], o
           <div className="flex flex-col items-center gap-2">
             <button
               onClick={handleAbrirAgenda}
-              className="w-[120px] h-[100px] bg-gradient-to-b from-[#179cba] to-white rounded-full flex flex-col justify-center items-center shadow-md hover:scale-105 transition-transform"
+              className="w-[120px] h-[100px] bg-gradient-to-b from-[#179cba] to-white rounded-full flex flex-col justify-center items-center shadow-md hover:opacity-80 transition"
             >
               <Calendar className="w-[40px] h-[40px] text-black" />
               <span className="text-base font-sans text-black">Agenda</span>
@@ -92,3 +99,4 @@ export default function AsignarTurnoBox({ modo = "profesional", doctores = [], o
     </div>
   );
 }
+

@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { EyeOff, Lock, User } from "lucide-react";
 import BotonHarmonia from "@/components/ui/BotonHarmonia";
+import logo from "@/assets/Logo.png"; // Asegurate que esté bien la ruta
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -14,24 +15,17 @@ export default function Login() {
   const navigate = useNavigate();
 
   const handleLogin = () => {
-    // Mock login para profesional
     if (username === "pepito" && password === "1234") {
       const user = { name: "Pepito Fernández", role: "profesional" };
       setUser(user);
       localStorage.setItem("user", JSON.stringify(user));
       navigate("/");
-    }
-
-    // Mock login para secretaria
-    else if (username === "maria" && password === "1234") {
+    } else if (username === "maria" && password === "1234") {
       const user = { name: "Maria Lopez", role: "secretaria" };
       setUser(user);
       localStorage.setItem("user", JSON.stringify(user));
       navigate("/secretaria");
-    }
-
-    // Si las credenciales no coinciden
-    else {
+    } else {
       alert("Credenciales incorrectas");
     }
   };
@@ -41,28 +35,26 @@ export default function Login() {
       <div className="w-full max-w-md">
         <Card className="border-none shadow-none bg-gradient-to-b from-[#e0ffff] to-[#20b2aa] rounded-[40px] py-6">
           <CardContent className="flex flex-col items-center pt-6">
-            {/* Logo */}
-            <div className="w-40 h-40 mb-4">
+            
+            {/* Logo con fondo blanco redondeado */}
+            <div className="w-40 h-40 mb-4 rounded-full bg-white p-4 shadow-md flex items-center justify-center">
               <img
-                src="/logo.png"
-                alt="Harmonia Logo"
-                className="w-full h-full object-cover"
+                src={logo}
+                alt="Logo TORDO"
+                className="w-full h-full object-contain"
               />
             </div>
 
-            {/* App Name */}
+            {/* //Nombre de la App 
             <h1 className="text-4xl font-normal font-sans bg-gradient-to-r from-[#152630] to-[#152630] bg-clip-text text-transparent mb-8">
-              Harmonia
-            </h1>
+              TORDO
+            </h1>*/}
 
             {/* Formulario */}
             <div className="w-full space-y-6 px-4 sm:px-8">
               {/* Usuario */}
               <div className="space-y-2">
-                <label
-                  htmlFor="username"
-                  className="block text-center text-2xl font-normal font-sans text-black"
-                >
+                <label htmlFor="username" className="block text-center text-2xl font-normal text-black">
                   Usuario
                 </label>
                 <div className="relative">
@@ -81,10 +73,7 @@ export default function Login() {
 
               {/* Contraseña */}
               <div className="space-y-2">
-                <label
-                  htmlFor="password"
-                  className="block text-center text-2xl font-normal font-sans text-black"
-                >
+                <label htmlFor="password" className="block text-center text-2xl font-normal text-black">
                   Contraseña
                 </label>
                 <div className="relative">
@@ -106,10 +95,7 @@ export default function Login() {
 
               {/* Botón Ingresar */}
               <div className="flex justify-center mt-6">
-                <BotonHarmonia
-                  onClick={handleLogin}
-                  
-                >
+                <BotonHarmonia onClick={handleLogin}>
                   Ingresar
                 </BotonHarmonia>
               </div>
@@ -118,7 +104,7 @@ export default function Login() {
               <div className="flex justify-center mt-10">
                 <a
                   href="#"
-                  className="text-xl font-normal font-sans text-black underline underline-offset-4"
+                  className="text-xl font-normal text-black underline underline-offset-4"
                 >
                   Recuperar contraseña
                 </a>
