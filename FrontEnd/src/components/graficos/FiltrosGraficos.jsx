@@ -86,13 +86,7 @@ export default function FiltrosGraficos({ tipoGrafico, setTipoGrafico, comparar,
           </SelectContent>
         </Select>
 
-        <Button
-          variant="outline"
-          cclassName="w-[191px] h-[29px] rounded-[40px] bg-gradient-to-b from-[#179cba] to-white text-xl font-normal text-black font-sans"
-          onClick={() => setComparar(!comparar)}
-        >
-          {comparar ? "Quitar comparación" : "Activar comparación"}
-        </Button>
+        
       </div>
     </div>
   );
