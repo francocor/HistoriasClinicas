@@ -11,14 +11,14 @@ export default function FormSection({ title, columns }) {
         <Separator className="mt-2 mb-4" />
       </div>
 
-      {/* Contenido por columnas */}
-      <div className={`grid ${columns.length === 2 ? "grid-cols-2 gap-6" : "grid-cols-1"} mb-4`}>
+      {/* Responsive grid: 1 columna en mobile, 2 en md+ */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {columns.map((col, colIndex) => (
           <div key={colIndex} className="space-y-4">
             {col.map((label, index) => (
-              <div key={index} className="flex items-start gap-2">
-                <label className="text-lg min-w-[150px] font-sans">{label}</label>
-                <Input className="h-8 flex-1" />
+              <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                <label className="text-base font-sans text-black w-full sm:min-w-[150px]">{label}</label>
+                <Input className="h-[38px] flex-1 w-full sm:w-auto border border-black" />
               </div>
             ))}
           </div>

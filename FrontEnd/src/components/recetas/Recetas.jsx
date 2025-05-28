@@ -1,103 +1,67 @@
-import { Button } from "@/components/ui/button";
+import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select";
-import { Bell, Book, Heart, Home, Settings, User } from "lucide-react";
-import React from "react";
-import BotonHarmonia from "@/components/ui/BotonHarmonia"
+import BotonHarmonia from "@/components/ui/BotonHarmonia";
+import mrx from "@/assets/mrx.jpg";
+import pami from "@/assets/pami.jpg";
+import rx from "@/assets/rx.jpg";
 
 export default function Recetas() {
   const platforms = [
-    {
-      id: 1,
-      name: "PAMI",
-      image: "/images-removebg-preview-1.png",
-      hasDropdown: false,
-    },
-    {
-      id: 2,
-      name: "MR DIGITAL",
-      image: "/1200x630wa-removebg-preview-1.png",
-      hasDropdown: true,
-    },
-    {
-      id: 3,
-      name: "RPFÁCIL",
-      image: "/c6ce51f9-3b44-46ac-b3d3-8d044710ac62-removebg-preview-1.png",
-      hasDropdown: true,
-    },
+    { id: 1, name: "PAMI", image: pami, obraSocial: "PAMI" },
+    { id: 2, name: "MR DIGITAL", image: mrx, obraSocial: "OSDE / Swiss Medical" },
+    { id: 3, name: "Rx", image: rx, obraSocial: "OSDE / Swiss Medical / Otras" },
   ];
 
   return (
-    <div className="bg-white flex flex-row justify-center w-full">
-      <div className="bg-white w-[1366px] h-[768px] relative">
+    <main className="w-full flex justify-center bg-white px-4 py-8">
+      <div className="w-full max-w-screen-xl flex flex-col items-center gap-8">
 
-        {/* Main content */}
-        <div className="absolute w-[999px] h-[666px] top-[93px] left-80">
-          <h1 className="text-5xl font-inter text-center mb-16">Recetas</h1>
+        {/* Título principal */}
+        <h1 className="text-4xl text-center font-semibold font-inter">
+          Recetas
+        </h1>
 
-          <h2 className="text-[32px] font-montserrat text-center mb-12">
-            Plataformas para las recetas digitales
-          </h2>
+        {/* Subtítulo */}
+        <h2 className="text-2xl text-center font-montserrat mb-2">
+          Plataformas para las recetas digitales
+        </h2>
 
-          {/* Prescription platforms */}
-          <div className="flex justify-center gap-10 mb-16">
-            {platforms.map((platform) => (
-              <Card
-                key={platform.id}
-                className="w-[248px] h-60 rounded-[40px] border border-black"
-              >
-                <CardContent className="flex flex-col items-center justify-between h-full p-4">
-                  <div className="flex-1 flex items-center justify-center">
-                    <img
-                      src={platform.image}
-                      alt={platform.name}
-                      className="object-contain max-h-[160px]"
-                    />
-                  </div>
-                  <BotonHarmonia
-                  >
-                    Generar
-                  </BotonHarmonia>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+        {/* Plataformas */}
+        <div className="flex flex-wrap justify-center gap-6">
+          {platforms.map((platform) => (
+            <Card
+              key={platform.id}
+              className="w-[260px] rounded-[40px] border border-black shadow-md"
+            >
+              <CardContent className="flex flex-col items-center justify-between p-4 gap-4">
 
-          {/* Health insurance selectors */}
-          <div className="flex justify-center gap-10">
-            {platforms.map((platform, index) => (
-              <div key={`insurance-${index}`} className="flex items-center">
-                <span className="font-montserrat text-xl mr-2">Obra social:</span>
-                {index === 0 ? (
-                  <div className="relative w-[100px] border border-black">
-                    <Input
-                      defaultValue="Pami"
-                      className="h-[19px] text-xl text-center p-0 border-none"
-                    />
-                  </div>
-                ) : (
-                  <Select>
-                    <SelectTrigger className="w-[130px] h-[19px] border border-black rounded-none">
-                      <span className="text-sm"></span>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pami">Pami</SelectItem>
-                      <SelectItem value="osde">OSDE</SelectItem>
-                      <SelectItem value="swiss">Swiss Medical</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
-            ))}
-          </div>
+                {/* Imagen */}
+                <img
+                  src={platform.image}
+                  alt={platform.name}
+                  className="object-contain max-h-[130px]"
+                />
+
+                {/* Botón */}
+                <BotonHarmonia>Generar</BotonHarmonia>
+
+                {/* Recuadro informativo */}
+                <div className="w-full">
+                  <span className="block text-sm font-medium mb-1 text-center">
+                    Obra social:
+                  </span>
+                  <Input
+                    readOnly
+                    value={platform.obraSocial}
+                    className="w-full h-[38px] border border-black bg-white text-center text-sm"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
-    </div>
+    </main>
   );
 }

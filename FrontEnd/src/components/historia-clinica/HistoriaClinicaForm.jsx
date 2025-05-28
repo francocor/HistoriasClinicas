@@ -48,21 +48,17 @@ const sections = [
 export default function HistoriaClinicaForm() {
   return (
     <ScrollArea className="w-full max-w-5xl bg-white border border-black rounded-md p-4">
-      <CardContent>
-        {sections.map((section, index) => (
-          <FormSection key={index} title={section.title} columns={section.fields} />
-        ))}
+  <CardContent className="space-y-6">
+    {sections.map((section, index) => (
+      <FormSection key={index} title={section.title} columns={section.fields} />
+    ))}
 
-        {/* Botones de acción */}
-        <div className="flex justify-center mt-6 gap-6">
-          <BotonHarmonia>
-            Aceptar
-          </BotonHarmonia>
-          <BotonHarmonia>
-            Cancelar
-          </BotonHarmonia>
-        </div>
-      </CardContent>
-    </ScrollArea>
+    {/* Botones */}
+    <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
+      <BotonHarmonia>Aceptar</BotonHarmonia>
+      <BotonHarmonia>Cancelar</BotonHarmonia>
+    </div>
+  </CardContent>
+</ScrollArea>
   );
 }
