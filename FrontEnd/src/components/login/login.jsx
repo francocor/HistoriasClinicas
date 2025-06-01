@@ -14,21 +14,44 @@ export default function Login() {
   const { setUser } = useUser();
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    if (username === "pepito" && password === "1234") {
-      const user = { name: "Pepito Fernández", role: "profesional" };
+  const handleLogin = async () => {
+    try {
+      const response = await fetch("http://localhost:4000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Credenciales incorrectas");
+      }
+  
+      const data = await response.json();
+      const { token, user } = data;
+  
+      const now = Date.now();
+      const expiry = now + 60 * 60 * 1000; // 1 hora en ms
+  
+      sessionStorage.setItem("token", token);
+      sessionStorage.setItem("user", JSON.stringify(user));
+      sessionStorage.setItem("sessionExpiry", expiry.toString());
+  
       setUser(user);
-      localStorage.setItem("user", JSON.stringify(user));
-      navigate("/");
-    } else if (username === "maria" && password === "1234") {
-      const user = { name: "Maria Lopez", role: "secretaria" };
-      setUser(user);
-      localStorage.setItem("user", JSON.stringify(user));
-      navigate("/secretaria");
-    } else {
-      alert("Credenciales incorrectas");
+  
+      // Redirigir como antes
+      if (user.role === "secretaria") {
+        navigate("/secretaria");
+      } else {
+        navigate("/"); // profesional, admin, master
+      }
+  
+    } catch (error) {
+      alert(error.message);
     }
   };
+  
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-[#fcfefe] px-4">

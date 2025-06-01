@@ -4,15 +4,23 @@ const UserContext = createContext();
 
 export function UserProvider({ children }) {
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem("user");
-    return saved ? JSON.parse(saved) : null;
+    const savedUser = sessionStorage.getItem("user");
+    const expiry = parseInt(sessionStorage.getItem("sessionExpiry") || "0", 10);
+    const now = Date.now();
+
+    if (savedUser && now < expiry) {
+      return JSON.parse(savedUser);
+    }
+
+    sessionStorage.clear();
+    return null;
   });
 
   useEffect(() => {
     if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
+      sessionStorage.setItem("user", JSON.stringify(user));
     } else {
-      localStorage.removeItem("user");
+      sessionStorage.removeItem("user");
     }
   }, [user]);
 

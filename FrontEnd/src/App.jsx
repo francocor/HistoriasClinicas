@@ -23,6 +23,20 @@ import MedicosSecretaria from "@/components/secretaria/MedicosSecretaria";
 export default function App() {
   const { user } = useUser();
 
+  const isSessionValid = () => {
+    const expiry = parseInt(sessionStorage.getItem("sessionExpiry") || "0", 10);
+    return Date.now() < expiry;
+  };
+
+  const isLoggedIn = user && isSessionValid();
+
+  // Si la sesión expiró, limpiamos y redirigimos
+  if (user && !isSessionValid()) {
+    sessionStorage.clear();
+    setUser(null);
+    return <Navigate to="/login" replace />;
+  }
+
   return (
     <BrowserRouter>
       <Routes>

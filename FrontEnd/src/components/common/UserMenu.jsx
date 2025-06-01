@@ -8,7 +8,6 @@ export default function UserMenu({ visible }) {
 
   if (!visible) return null;
 
-  // Opciones del menú
   const opciones = [
     { label: "Cambiar Usuario", action: () => navigate("/login") },
     { label: "Editar datos personales", action: () => alert("Próximamente...") },
@@ -16,7 +15,9 @@ export default function UserMenu({ visible }) {
     {
       label: "Cerrar sesión",
       action: () => {
-        localStorage.removeItem("user");
+        sessionStorage.removeItem("user");
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("sessionExpiry");
         setUser(null);
         navigate("/login");
       },
