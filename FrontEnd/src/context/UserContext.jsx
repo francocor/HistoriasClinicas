@@ -3,29 +3,52 @@ import { createContext, useContext, useState, useEffect } from "react";
 const UserContext = createContext();
 
 export function UserProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    const savedUser = sessionStorage.getItem("user");
-    const expiry = parseInt(sessionStorage.getItem("sessionExpiry") || "0", 10);
-    const now = Date.now();
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
+  const [isReady, setIsReady] = useState(false); // ✅ importante
 
-    if (savedUser && now < expiry) {
-      return JSON.parse(savedUser);
+  // Al montar, cargamos desde localStorage si la sesión es válida
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    const savedToken = localStorage.getItem("token");
+    const expiry = parseInt(localStorage.getItem("sessionExpiry") || "0", 10);
+
+    const now = Date.now();
+    const isValid = now < expiry;
+
+    console.log("🌐 savedUser:", savedUser);
+    console.log("🕐 sessionExpiry:", expiry, "| now:", now, "| valid:", isValid);
+
+    if (savedUser && savedToken && isValid) {
+      setUser(JSON.parse(savedUser));
+      setToken(savedToken);
+    } else {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      localStorage.removeItem("sessionExpiry");
     }
 
-    sessionStorage.clear();
-    return null;
-  });
+    setIsReady(true); // ✅ indica que ya cargó
+  }, []);
 
   useEffect(() => {
     if (user) {
-      sessionStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("user", JSON.stringify(user));
     } else {
-      sessionStorage.removeItem("user");
+      localStorage.removeItem("user");
     }
   }, [user]);
 
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem("token", token);
+    } else {
+      localStorage.removeItem("token");
+    }
+  }, [token]);
+
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ user, setUser, token, setToken, isReady }}>
       {children}
     </UserContext.Provider>
   );

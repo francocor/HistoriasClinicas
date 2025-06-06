@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect } from "react";
 import Layout from "@/components/layout/Layout";
 import LayoutSecretaria from "@/components/secretaria/LayoutSecretaria";
 
@@ -21,57 +22,73 @@ import HomeSecretaria from "@/components/secretaria/HomeSecretaria";
 import MedicosSecretaria from "@/components/secretaria/MedicosSecretaria";
 
 export default function App() {
-  const { user } = useUser();
+  const { user, setUser, isReady } = useUser();
+
+  // Validación de sesión (nunca modificar estado en render)
+  useEffect(() => {
+    const expiry = parseInt(localStorage.getItem("sessionExpiry") || "0", 10);
+    const isExpired = user && Date.now() > expiry;
+
+    if (isExpired) {
+      localStorage.clear();
+      setUser(null);
+    }
+  }, [user, setUser]);
 
   const isSessionValid = () => {
-    const expiry = parseInt(sessionStorage.getItem("sessionExpiry") || "0", 10);
+    const expiry = parseInt(localStorage.getItem("sessionExpiry") || "0", 10);
     return Date.now() < expiry;
   };
 
   const isLoggedIn = user && isSessionValid();
 
-  // Si la sesión expiró, limpiamos y redirigimos
-  if (user && !isSessionValid()) {
-    sessionStorage.clear();
-    setUser(null);
-    return <Navigate to="/login" replace />;
+  // ⏳ Esperar a que cargue el contexto
+  if (!isReady) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-white">
+        <div className="text-center animate-pulse">
+          <img src="/src/assets/Logo.png" alt="logo" className="w-20 h-20 mx-auto mb-4" />
+          <p className="text-gray-500">Cargando sesión...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <BrowserRouter>
       <Routes>
-        {/* LOGIN siempre disponible */}
+        {/* LOGIN */}
         <Route path="/login" element={<Login />} />
 
-        {/* RUTA INICIAL: redirige según tipo de usuario */}
+        {/* REDIRECCIÓN */}
         <Route
           path="/"
           element={
-            user ? (
+            isLoggedIn ? (
               user.role === "secretaria" ? (
                 <Navigate to="/secretaria" replace />
               ) : (
-                <Layout />
+                <Navigate to="/pacientes" replace />
               )
             ) : (
               <Navigate to="/login" replace />
             )
           }
-        >
-          {/* PROFESIONALES */}
-          {user?.role === "profesional" && (
-            <>
-              <Route index element={<HomeProfesionales />} />
-              <Route path="pacientes" element={<Pacientes />} />
-              <Route path="historia-clinica" element={<HistoriaClinica />} />
-              <Route path="ficha-paciente" element={<FichaPaciente />} />
-              <Route path="atencion" element={<Atencion />} />
-              <Route path="turnos" element={<Turnos role="profesional" />} />
-              <Route path="recetas" element={<Recetas />} />
-              <Route path="graficos" element={<Balance />} />
-            </>
-          )}
-        </Route>
+        />
+
+        {/* PROFESIONALES */}
+        {user?.role === "profesional" && (
+          <Route path="/" element={<Layout />}>
+            <Route index element={<HomeProfesionales />} />
+            <Route path="pacientes" element={<Pacientes />} />
+            <Route path="historia-clinica" element={<HistoriaClinica />} />
+            <Route path="ficha-paciente" element={<FichaPaciente />} />
+            <Route path="atencion" element={<Atencion />} />
+            <Route path="turnos" element={<Turnos role="profesional" />} />
+            <Route path="recetas" element={<Recetas />} />
+            <Route path="graficos" element={<Balance />} />
+          </Route>
+        )}
 
         {/* SECRETARIA */}
         {user?.role === "secretaria" && (
@@ -83,7 +100,7 @@ export default function App() {
           </Route>
         )}
 
-        {/* fallback para rutas no encontradas */}
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>

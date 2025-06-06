@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import FormSection from "./FormSection";
 import BotonHarmonia from "@/components/ui/botonHarmonia";
+import { useNavigate } from "react-router-dom";
 
 // Estructura de datos de prueba
 const sections = [
