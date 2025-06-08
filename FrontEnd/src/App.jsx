@@ -76,6 +76,20 @@ export default function App() {
           }
         />
 
+        {/*ADMINISTRADOR */}
+        {user?.role === "admin" && (
+          <Route path="/" element={<Layout />}>
+            <Route index element={<HomeProfesionales />} />
+            <Route path="pacientes" element={<Pacientes />} />
+            <Route path="historia-clinica" element={<HistoriaClinica />} />
+            <Route path="ficha-paciente" element={<FichaPaciente />} />
+            <Route path="atencion" element={<Atencion />} />
+            <Route path="turnos" element={<Turnos role="admin" />} />
+            <Route path="graficos" element={<Balance />} />
+            <Route path="admin" element={<AdminPanel />} /> {/* NUEVO */}
+          </Route>
+        )}
+
         {/* PROFESIONALES */}
         {user?.role === "profesional" && (
           <Route path="/" element={<Layout />}>

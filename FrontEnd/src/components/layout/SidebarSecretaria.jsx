@@ -48,7 +48,11 @@ export default function SidebarSecretaria() {
             label={item.label}
             path={item.path}
             isOpen={isOpen}
-            isActive={location.pathname.startsWith(item.path)}
+            isActive={
+              item.path === "/secretaria"
+                ? location.pathname === "/secretaria"
+                : location.pathname.startsWith(item.path)
+            }
             onClick={() => navigate(item.path)}
           />
         ))}

@@ -71,15 +71,19 @@ export default function HomeSecretaria() {
         </div>
 
         <Pagination className="mt-6">
-          <PaginationContent className="flex justify-center gap-4">
+          <PaginationContent className="flex justify-center gap-8">
             <PaginationItem>
-              <PaginationLink>
-                <span className="flex items-center gap-1">Anterior</span>
+              <PaginationLink
+                className="px-6 py-2 rounded-full border border-black text-black bg-white hover:bg-gray-100 transition text-lg min-w-[120px] text-center"
+              >
+                Anterior
               </PaginationLink>
             </PaginationItem>
             <PaginationItem>
-              <PaginationLink>
-                <span className="flex items-center gap-1">Siguiente</span>
+              <PaginationLink
+                className="px-6 py-2 rounded-full border border-black text-black bg-white hover:bg-gray-100 transition text-lg min-w-[120px] text-center"
+              >
+                Siguiente
               </PaginationLink>
             </PaginationItem>
           </PaginationContent>
