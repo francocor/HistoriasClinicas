@@ -56,9 +56,9 @@ export default function Login() {
       // Redirigir según rol
       if (user.role === "secretaria") {
         navigate("/secretaria");
-      } else {
-        navigate("/pacientes");
-      }
+      }else {
+        navigate("/")
+      } 
 
     } catch (error) {
       console.error("Login error:", error.message);

@@ -9,6 +9,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import Swal from "sweetalert2";
 
 export default function TurnoNuevoPaciente({ modo = "profesional", doctores = [], onAgregarTurno }) {
   const [formData, setFormData] = useState({
@@ -16,6 +17,8 @@ export default function TurnoNuevoPaciente({ modo = "profesional", doctores = []
     apellido: "",
     dni: "",
     telefono: "",
+    email: "",
+    fecha_nacimiento: "",
     fecha: "",
     hora: "",
     osocial: "",
@@ -27,50 +30,110 @@ export default function TurnoNuevoPaciente({ modo = "profesional", doctores = []
     setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
 
-  const handleGrabar = () => {
+  const handleGrabar = async () => {
     const camposObligatorios = ["nombre", "apellido", "dni", "telefono", "fecha", "hora", "osocial"];
     const faltanCampos = camposObligatorios.some((campo) => !formData[campo]);
-
     const necesitaMedico = modo === "secretaria" && !formData.profesionalId;
 
     if (faltanCampos || necesitaMedico) {
-      alert("Por favor complete todos los campos obligatorios.");
+      Swal.fire("Faltan datos", "Por favor complete todos los campos obligatorios.", "warning");
       return;
     }
 
+    const nombreCompleto = `${formData.nombre} ${formData.apellido}`;
     const doctorNombre =
       modo === "secretaria"
-        ? doctores.find((d) => d.id.toString() === formData.profesionalId)?.nombre || "Profesional"
+        ? doctores.find((d) => d.id.toString() === formData.profesionalId)?.name || "Profesional"
         : "Dr. Pepito Fernández";
 
-    const nuevoTurno = {
-      id: Date.now(),
-      patientName: `${formData.nombre} ${formData.apellido}`,
-      appointmentDate: `${formData.fecha} - ${formData.hora}hs`,
-      doctor: doctorNombre,
-      telefono: formData.telefono,
-    };
+    try {
+      // 1. Crear el paciente
+      const pacienteRes = await fetch("http://localhost:4000/api/pacientes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: nombreCompleto,
+          dni: formData.dni,
+          telefono: formData.telefono,
+          email: formData.email,
+          fecha_nacimiento: formData.fecha_nacimiento,
+          obra_social: formData.osocial,
+        }),
+      });
 
-    onAgregarTurno(nuevoTurno);
+      if (!pacienteRes.ok) throw new Error("Error al crear paciente");
+      const pacienteData = await pacienteRes.json();
+      const pacienteId = pacienteData.pacienteId;
+
+      // 2. Crear el turno
+      const fechaCompleta = `${formData.fecha}T${formData.hora}`;
+      const turnoRes = await fetch("http://localhost:4000/api/turnos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          paciente_id: pacienteId,
+          fecha: fechaCompleta,
+          doctor_nombre: doctorNombre,
+          creado_por: modo,
+        }),
+      });
+
+      if (!turnoRes.ok) throw new Error("Error al crear turno");
+
+      Swal.fire("Éxito", "Turno y paciente registrados", "success");
+
+      // Resetear
+      setFormData({
+        nombre: "",
+        apellido: "",
+        dni: "",
+        telefono: "",
+        email: "",
+        fecha_nacimiento: "",
+        fecha: "",
+        hora: "",
+        osocial: "",
+        cobro: "",
+        profesionalId: "",
+      });
+
+    } catch (err) {
+      console.error("Error al grabar turno o paciente:", err);
+      Swal.fire("Error", "No se pudo completar la operación", "error");
+    }
   };
 
   return (
     <div className="flex justify-center w-full">
       <Card className="w-[377px] rounded-[20px] overflow-hidden">
         <CardContent className="p-4 space-y-3">
-          {["nombre", "apellido", "dni", "telefono", "osocial", "cobro"].map((campo) => (
+          {["nombre", "apellido", "dni", "telefono", "email", "osocial", "cobro"].map((campo) => (
             <div key={campo} className="flex items-center">
               <label htmlFor={campo} className="w-24 text-black text-sm capitalize">
                 {campo === "osocial" ? "Obra Social" : campo}
               </label>
               <Input
                 id={campo}
+                type="text"
                 value={formData[campo]}
                 onChange={handleChange}
                 className="h-[28px] border border-black bg-white rounded-md flex-1"
               />
             </div>
           ))}
+
+          {/* Fecha de Nacimiento */}
+          <div className="flex items-center">
+            <label htmlFor="fecha_nacimiento" className="w-24 text-black text-sm">F. Nac.</label>
+            <Input
+              id="fecha_nacimiento"
+              type="date"
+              value={formData.fecha_nacimiento}
+              onChange={handleChange}
+              className="h-[28px] border border-black bg-white rounded-md flex-1"
+              max={new Date().toISOString().split("T")[0]}
+            />
+          </div>
 
           {/* Fecha */}
           <div className="flex items-center">
@@ -81,6 +144,7 @@ export default function TurnoNuevoPaciente({ modo = "profesional", doctores = []
               value={formData.fecha}
               onChange={handleChange}
               className="h-[28px] border border-black bg-white rounded-md flex-1"
+              min={new Date().toISOString().split("T")[0]}
             />
           </div>
 
@@ -107,7 +171,7 @@ export default function TurnoNuevoPaciente({ modo = "profesional", doctores = []
                 <SelectContent>
                   {doctores.map((doc) => (
                     <SelectItem key={doc.id} value={doc.id.toString()}>
-                      {doc.nombre}
+                      {doc.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -132,6 +196,21 @@ export default function TurnoNuevoPaciente({ modo = "profesional", doctores = []
             <Button
               variant="outline"
               className="rounded-[40px] px-4 border-black text-black"
+              onClick={() => {
+                setFormData({
+                  nombre: "",
+                  apellido: "",
+                  dni: "",
+                  telefono: "",
+                  email: "",
+                  fecha_nacimiento: "",
+                  fecha: "",
+                  hora: "",
+                  osocial: "",
+                  cobro: "",
+                  profesionalId: "",
+                });
+              }}
             >
               Cancelar
             </Button>

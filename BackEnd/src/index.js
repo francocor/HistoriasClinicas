@@ -3,7 +3,9 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const authRoutes = require("./routes/authRoutes");
 const turnosRoutes = require("./routes/turnosRoutes");
-
+const asistencias= require("./routes/asistenciasRoutes")
+const profesionalesRoutes = require("./routes/profesionalesRoutes");
+const pacientesRoutes = require("./routes/pacientesRoutes");
 
 dotenv.config();
 
@@ -13,6 +15,10 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/turnos", turnosRoutes);
+app.use("/api/asistencias", asistencias);
+app.use("/api/profesionales", profesionalesRoutes);
+app.use("/api/pacientes", pacientesRoutes)
+
 
 app.get("/", (req, res) => {
   res.send("API funcionando");

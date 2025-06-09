@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TurnosHeader from "@/components/turnos/TurnosHeader";
 import TurnosList from "@/components/turnos/TurnosList";
 import AsignarTurnoBox from "@/components/turnos/AsignarTurnoBox";
@@ -13,20 +13,38 @@ import BuscadorPaciente from "@/components/ui/BuscadorPaciente";
 
 export default function Turnos({ role = "profesional" }) {
   const [selectedDoctor, setSelectedDoctor] = useState("");
-  const [turnos, setTurnos] = useState([
-    {
-      id: 1,
-      paciente: "Juan Pérez",
-      fechaHora: "12/05/2024 - 10:30hs",
-      doctor: "Dr. Fernández",
-    },
-    {
-      id: 2,
-      paciente: "Laura Gómez",
-      fechaHora: "12/05/2024 - 11:00hs",
-      doctor: "Dr. Fernández",
-    },
-  ]);
+  const [turnos, setTurnos] = useState([]);
+  const [profesionales,setProfesionales]= useState([])
+  
+
+  useEffect(() => {
+    const fetchTurnos = async () => {
+      try {
+        const res = await fetch("http://localhost:4000/api/asistencias/presentes");
+        const data = await res.json();
+        setTurnos(data);
+      } catch (err) {
+        console.error("Error al obtener turnos de asistencia:", err);
+      }
+    };
+
+    fetchTurnos();
+  }, []);
+  useEffect(() => {
+  const fetchProfesionales = async () => {
+    try {
+      const res = await fetch("http://localhost:4000/api/profesionales");
+      const data = await res.json();
+            console.log("Profesionales recibidos:", data); // 👈 Agregá esto
+
+      setProfesionales(data);
+    } catch (err) {
+      console.error("Error al obtener profesionales:", err);
+    }
+  };
+
+  fetchProfesionales();
+}, []);
 
   const agregarTurno = (nuevoTurno) => {
     setTurnos((prev) => [...prev, { id: prev.length + 1, ...nuevoTurno }]);
@@ -35,7 +53,6 @@ export default function Turnos({ role = "profesional" }) {
   return (
     <main className="w-full flex justify-center px-4 py-8">
       <div className="w-full max-w-[1300px] flex flex-col lg:flex-row items-start justify-center gap-10">
-        
         {/* COLUMNA IZQUIERDA */}
         <div className="w-full lg:w-2/3 flex flex-col items-start">
           <TurnosHeader />
@@ -50,9 +67,14 @@ export default function Turnos({ role = "profesional" }) {
                   <SelectValue placeholder="Elegir médico" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="dr-pepito">Dr. Pepito Fernández</SelectItem>
-                  <SelectItem value="dr-juarez">Dra. Juárez</SelectItem>
-                </SelectContent>
+  {profesionales.map((doc) => (
+    <SelectItem key={doc.id} value={doc.name
+}>
+      {doc.name
+}
+    </SelectItem>
+  ))}
+</SelectContent>
               </Select>
             </div>
           )}
@@ -68,14 +90,10 @@ export default function Turnos({ role = "profesional" }) {
 
           <AsignarTurnoBox
             modo={role}
-            doctores={[
-              { id: 1, nombre: "Dr. Pepito Fernández" },
-              { id: 2, nombre: "Dra. Juárez" },
-            ]}
+            doctores={profesionales}
             onAgregarTurno={agregarTurno}
           />
         </div>
-
       </div>
     </main>
   );

@@ -22,7 +22,11 @@ export default function MedicoCard({ medico }) {
 
         {/* Info */}
         <div className="text-sm text-left w-full space-y-1">
-          <p><strong>F. Nacimiento:</strong> {medico.nacimiento}</p>
+         <p><strong>F. Nacimiento:</strong> {new Date(medico.nacimiento).toLocaleDateString("es-AR", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+})}</p>
           <p><strong>Teléfono:</strong> {medico.telefono}</p>
           <Separator />
           <p><strong>Horarios:</strong> {medico.horarios}</p>
