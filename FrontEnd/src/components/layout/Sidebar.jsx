@@ -7,16 +7,19 @@ import {
   BarChart2,
   Menu,
   Settings,
+  Users2, 
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import SidebarItem from "./SidebarItem";
 import SettingsMenu from "@/components/common/SettingsMenu";
+import { useUser } from "@/context/UserContext"; 
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useUser(); 
 
   const items = [
     { icon: Home, label: "Home", path: "/" },
@@ -25,6 +28,11 @@ export default function Sidebar() {
     { icon: FileText, label: "Recetas", path: "/recetas" },
     { icon: BarChart2, label: "Gráficos", path: "/graficos" },
   ];
+
+  // Si el usuario es admin, agregamos "Usuarios"
+  if (user?.role === "admin") {
+    items.push({ icon: Users2, label: "Usuarios", path: "/admin" });
+  }
 
   return (
     <aside
@@ -49,7 +57,11 @@ export default function Sidebar() {
             label={item.label}
             path={item.path}
             isOpen={isOpen}
-            isActive={location.pathname === item.path}
+            isActive={
+              item.path === "/"
+                ? location.pathname === "/"
+                : location.pathname.startsWith(item.path)
+            }
             onClick={() => navigate(item.path)}
           />
         ))}

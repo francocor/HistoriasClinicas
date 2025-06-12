@@ -17,6 +17,9 @@ import Turnos from "@/components/turnos/Turnos";
 import Recetas from "@/components/recetas/Recetas";
 import Balance from "@/components/graficos/Balances";
 
+// ADMIN
+import AdminPanel from "@/components/admin/AdminPanel";
+
 // SECRETARIA
 import HomeSecretaria from "@/components/secretaria/HomeSecretaria";
 import MedicosSecretaria from "@/components/secretaria/MedicosSecretaria";
@@ -86,7 +89,7 @@ export default function App() {
             <Route path="atencion" element={<Atencion />} />
             <Route path="turnos" element={<Turnos role="admin" />} />
             <Route path="graficos" element={<Balance />} />
-            <Route path="admin" element={<AdminPanel />} /> {/* NUEVO */}
+            <Route path="admin" element={<AdminPanel />} /> 
           </Route>
         )}
 
