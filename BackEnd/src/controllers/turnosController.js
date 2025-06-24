@@ -28,12 +28,16 @@ const crearTurno = async (req, res) => {
 const obtenerTurnosProximos = async (req, res) => {
   try {
     const [rows] = await db.execute(`
-      SELECT t.id, p.nombre AS patientName, t.fecha AS appointmentDate, t.doctor_nombre AS doctor
-      FROM turnos t
-      JOIN pacientes p ON t.paciente_id = p.id
-      WHERE t.fecha >= NOW()
-        AND t.estado_asistencia IS NULL
-      ORDER BY t.fecha ASC
+        SELECT 
+    t.id, 
+    t.paciente_id AS patientId, 
+    p.nombre AS patientName, 
+    t.fecha AS appointmentDate, 
+    t.doctor_nombre AS doctor
+  FROM turnos t
+  JOIN pacientes p ON t.paciente_id = p.id
+  WHERE t.fecha >= NOW()
+  ORDER BY t.fecha ASC
     `);
 
     res.json(rows);

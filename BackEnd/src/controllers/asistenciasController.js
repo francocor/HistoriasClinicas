@@ -27,13 +27,18 @@ const actualizarEstadoAsistencia = async (req, res) => {
 const obtenerAsistenciasPresentes = async (req, res) => {
   try {
     const [rows] = await db.execute(`
-      SELECT t.id, t.estado_asistencia AS estado, t.fecha AS appointmentDate,
-             p.nombre AS patientName,
-             t.doctor_nombre AS doctor
-      FROM turnos t
-      JOIN pacientes p ON t.paciente_id = p.id
-      WHERE t.estado_asistencia = 'presente'
-      ORDER BY t.fecha DESC
+      SELECT 
+  t.id, 
+  t.estado_asistencia AS estado, 
+  t.fecha AS appointmentDate,
+  t.paciente_id AS patientId,
+  p.nombre AS patientName,
+  t.doctor_nombre AS doctor
+FROM turnos t
+JOIN pacientes p ON t.paciente_id = p.id
+WHERE t.estado_asistencia = 'presente'
+  AND t.estado_atencion is null
+ORDER BY t.fecha DESC;
     `);
 
     res.json(rows);
@@ -42,6 +47,7 @@ const obtenerAsistenciasPresentes = async (req, res) => {
     res.status(500).json({ message: "Error al obtener asistencias" });
   }
 };
+
 
 
 module.exports = { actualizarEstadoAsistencia, obtenerAsistenciasPresentes };

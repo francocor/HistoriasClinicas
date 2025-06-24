@@ -15,9 +15,9 @@ export default function UserMenu({ visible }) {
     {
       label: "Cerrar sesión",
       action: () => {
-        sessionStorage.removeItem("user");
-        sessionStorage.removeItem("token");
-        sessionStorage.removeItem("sessionExpiry");
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        localStorage.removeItem("sessionExpiry");
         setUser(null);
         navigate("/login");
       },

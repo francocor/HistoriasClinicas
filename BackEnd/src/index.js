@@ -6,6 +6,9 @@ const turnosRoutes = require("./routes/turnosRoutes");
 const asistencias= require("./routes/asistenciasRoutes")
 const profesionalesRoutes = require("./routes/profesionalesRoutes");
 const pacientesRoutes = require("./routes/pacientesRoutes");
+const atencionRoutes = require("./routes/atencionRoutes");
+const historiaRoutes = require("./routes/historiasRoutes"); // ✅ nuevo
+
 
 dotenv.config();
 
@@ -17,7 +20,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/turnos", turnosRoutes);
 app.use("/api/asistencias", asistencias);
 app.use("/api/profesionales", profesionalesRoutes);
-app.use("/api/pacientes", pacientesRoutes)
+app.use("/api/pacientes", pacientesRoutes);
+app.use("/api/atendido", atencionRoutes)
+app.use("/api/historias", historiaRoutes); // ✅ nuevo
 
 
 app.get("/", (req, res) => {
