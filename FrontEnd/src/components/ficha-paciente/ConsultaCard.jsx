@@ -1,46 +1,146 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Download } from "lucide-react";
+import { Download, Upload } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogTitle,
+  DialogHeader,
+  DialogClose,
+} from "@/components/ui/dialog";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 export default function ConsultaCard({ date, reason, doctor, highlighted }) {
+  const navigate = useNavigate();
+  const fileInputRef = useRef(null);
+  const [archivo, setArchivo] = useState(null);
+  const cardRef = useRef(null);
+
+  const handleArchivoSeleccionado = (event) => {
+    const file = event.target.files[0];
+    if (file) setArchivo(file);
+  };
+
+  const handleDescargarArchivo = () => {
+    if (archivo) {
+      const url = URL.createObjectURL(archivo);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = archivo.name;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  const handleDescargarConsulta = async () => {
+    const element = cardRef.current;
+    const canvas = await html2canvas(element);
+    const imgData = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF();
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save(`consulta-${date.replace(/\//g, "-")}.pdf`);
+  };
+
   return (
     <Card
-      className={`rounded-[20px] border border-black ${
-        highlighted ? "bg-[#179cba]" : "bg-white"
-      }`}
+      ref={cardRef}
+      className="rounded-[20px] border border-black bg-white w-full"
     >
       <CardContent className="p-4 space-y-4">
         {/* Fecha y botón Ver */}
-        <div className="flex justify-between items-center">
-          <span className="text-2xl font-sans">{date}</span>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+          <span className="text-xl sm:text-2xl font-sans">{date}</span>
           <Button
             onClick={() => navigate("/atencion")}
-            className="rounded-[40px] h-[39px] w-[84px] bg-white text-black shadow-md hover:bg-gray-100"
+            className="rounded-full h-[39px] px-6 bg-white text-black shadow hover:bg-gray-100"
           >
             Ver
           </Button>
         </div>
 
-        {/* Motivo y botón Estudios */}
-        <div className="flex justify-between items-center">
-          <span className="text-2xl font-sans">{reason}</span>
-          <Button className="rounded-[40px] h-[33px] w-[100px] bg-white text-black shadow-[8px_8px_1.9px_rgba(0,0,0,0.25)] hover:bg-gray-100">
-            Estudios
-          </Button>
-        </div>
+        {/* Motivo, Doctor y Documentos */}
+        <div className="flex flex-col sm:flex-row justify-between gap-4">
+          <div>
+            <p className="text-lg sm:text-2xl font-sans">{reason}</p>
+            <p className="text-lg sm:text-2xl font-sans mt-1">{doctor}</p>
+          </div>
 
-        {/* Médico y acciones */}
-        <div className="flex justify-between items-center">
-          <span className="text-2xl font-sans">{doctor}</span>
-          <div className="flex items-center gap-4">
-            <Button className="rounded-[40px] h-[33px] w-[100px] bg-white text-black shadow-[8px_8px_1.9px_rgba(0,0,0,0.25)] hover:bg-gray-100">
-              Análisis
+          <div className="flex flex-col items-end gap-2 w-full sm:w-auto">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="rounded-full px-4 bg-white text-black shadow hover:bg-gray-100 w-full sm:w-auto">
+                  📁 Documentos
+                </Button>
+              </DialogTrigger>
+
+              {/* 🛠️ Dialog fix con z-index y tamaño */}
+              <DialogContent className="w-[90vw] sm:w-[480px] max-h-[85vh] overflow-y-auto z-[9999] bg-white rounded-lg shadow-lg">
+                <DialogHeader>
+                  <DialogTitle>Gestión de Documentos</DialogTitle>
+                </DialogHeader>
+
+                <div className="space-y-4">
+                  {archivo ? (
+                    <div className="text-sm text-gray-700">
+                      <p className="font-medium">Documento actual:</p>
+                      <p className="truncate">{archivo.name}</p>
+                      <Button
+                        onClick={handleDescargarArchivo}
+                        className="mt-2 bg-blue-500 hover:bg-blue-600 text-white w-full"
+                      >
+                        <Download className="mr-2 w-4 h-4" /> Descargar
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500">
+                      No hay documento cargado.
+                    </p>
+                  )}
+
+                  <input
+                    type="file"
+                    accept="application/pdf,image/*"
+                    className="hidden"
+                    ref={fileInputRef}
+                    onChange={handleArchivoSeleccionado}
+                  />
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="w-full flex items-center gap-2 justify-center"
+                  >
+                    <Upload className="w-4 h-4" />
+                    Cargar nuevo documento
+                  </Button>
+                </div>
+
+                <DialogClose asChild>
+                  <Button variant="ghost" className="mt-4 w-full text-gray-600">
+                    Cerrar
+                  </Button>
+                </DialogClose>
+              </DialogContent>
+            </Dialog>
+
+            <Button
+              onClick={handleDescargarConsulta}
+              className="rounded-full px-4 text-sm bg-green-500 text-white shadow hover:bg-green-600 w-full sm:w-auto"
+            >
+              Descargar consulta
             </Button>
-            {!highlighted && <Download className="w-6 h-6 text-black" />}
           </div>
         </div>
       </CardContent>
     </Card>
   );
 }
+

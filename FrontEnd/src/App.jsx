@@ -88,6 +88,7 @@ export default function App() {
             <Route path="ficha-paciente" element={<FichaPaciente />} />
             <Route path="atencion" element={<Atencion />} />
             <Route path="turnos" element={<Turnos role="admin" />} />
+            <Route path="recetas" element={<Recetas />} />
             <Route path="graficos" element={<Balance />} />
             <Route path="admin" element={<AdminPanel />} /> 
           </Route>
