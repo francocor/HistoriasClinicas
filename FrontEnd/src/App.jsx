@@ -17,7 +17,7 @@ import Turnos from "@/components/turnos/Turnos";
 import Recetas from "@/components/recetas/Recetas";
 import Balance from "@/components/graficos/Balances";
 
-// ADMIN
+// ADMIN + MASTER
 import AdminPanel from "@/components/admin/AdminPanel";
 
 // SECRETARIA
@@ -27,7 +27,6 @@ import MedicosSecretaria from "@/components/secretaria/MedicosSecretaria";
 export default function App() {
   const { user, setUser, isReady } = useUser();
 
-  // Validación de sesión (nunca modificar estado en render)
   useEffect(() => {
     const expiry = parseInt(localStorage.getItem("sessionExpiry") || "0", 10);
     const isExpired = user && Date.now() > expiry;
@@ -45,7 +44,6 @@ export default function App() {
 
   const isLoggedIn = user && isSessionValid();
 
-  // ⏳ Esperar a que cargue el contexto
   if (!isReady) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-white">
@@ -63,7 +61,7 @@ export default function App() {
         {/* LOGIN */}
         <Route path="/login" element={<Login />} />
 
-        {/* REDIRECCIÓN */}
+        {/* REDIRECCIÓN BASE */}
         <Route
           path="/"
           element={
@@ -79,8 +77,8 @@ export default function App() {
           }
         />
 
-        {/*ADMINISTRADOR */}
-        {user?.role === "admin" && (
+        {/* ADMIN y MASTER comparten rutas */}
+        {(user?.role === "admin" || user?.role === "master") && (
           <Route path="/" element={<Layout />}>
             <Route index element={<HomeProfesionales />} />
             <Route path="pacientes" element={<Pacientes />} />
@@ -90,11 +88,11 @@ export default function App() {
             <Route path="turnos" element={<Turnos role="admin" />} />
             <Route path="recetas" element={<Recetas />} />
             <Route path="graficos" element={<Balance />} />
-            <Route path="admin" element={<AdminPanel />} /> 
+            <Route path="admin" element={<AdminPanel />} />
           </Route>
         )}
 
-        {/* PROFESIONALES */}
+        {/* PROFESIONAL */}
         {user?.role === "profesional" && (
           <Route path="/" element={<Layout />}>
             <Route index element={<HomeProfesionales />} />

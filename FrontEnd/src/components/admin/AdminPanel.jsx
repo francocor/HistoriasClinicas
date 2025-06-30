@@ -16,8 +16,10 @@ import {
   DialogHeader,
   DialogClose,
 } from "@/components/ui/dialog";
+import { useUser } from "@/context/UserContext";
 
 export default function AdminPanel() {
+  const { user } = useUser();
   const [usuarios, setUsuarios] = useState([]);
   const [editandoId, setEditandoId] = useState(null);
   const [nuevoUsuario, setNuevoUsuario] = useState({
@@ -58,14 +60,7 @@ export default function AdminPanel() {
 
   const handleEditChange = (id, field, value) => {
     setUsuarios((prev) =>
-      prev.map((u) =>
-        u.id === id
-          ? {
-              ...u,
-              [field]: value,
-            }
-          : u
-      )
+      prev.map((u) => (u.id === id ? { ...u, [field]: value } : u))
     );
   };
 
@@ -75,10 +70,20 @@ export default function AdminPanel() {
 
   const cancelarEdicion = () => setEditandoId(null);
 
+  const rolesDisponibles = ["secretaria", "profesional"];
+  if (user?.role === "master") rolesDisponibles.push("admin");
+
+  const puedeModificar = (targetRole) => {
+    if (user?.role === "master") return targetRole !== "master";
+    if (user?.role === "admin") return !["admin", "master"].includes(targetRole);
+    return false;
+  };
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
         <h1 className="text-3xl font-semibold">Gestor de Usuarios</h1>
+
         <Dialog>
           <DialogTrigger asChild>
             <Button>+ Nuevo Usuario</Button>
@@ -87,6 +92,7 @@ export default function AdminPanel() {
             <DialogHeader>
               <DialogTitle>Agregar Usuario</DialogTitle>
             </DialogHeader>
+
             <form className="grid gap-4 mt-4">
               <Input name="nombre" placeholder="Nombre" value={nuevoUsuario.nombre} onChange={handleChange} />
               <Input name="apellido" placeholder="Apellido" value={nuevoUsuario.apellido} onChange={handleChange} />
@@ -95,19 +101,25 @@ export default function AdminPanel() {
               <Input name="telefono" placeholder="Teléfono" value={nuevoUsuario.telefono} onChange={handleChange} />
               <Input name="direccion" placeholder="Dirección" value={nuevoUsuario.direccion} onChange={handleChange} />
               <Input name="username" placeholder="Nombre de usuario" value={nuevoUsuario.username} onChange={handleChange} />
-              <Input name="password" placeholder="Contraseña" value={nuevoUsuario.password} onChange={handleChange} type="password" />
+              <Input name="password" type="password" placeholder="Contraseña" value={nuevoUsuario.password} onChange={handleChange} />
+
               <Select value={nuevoUsuario.rol} onValueChange={(rol) => setNuevoUsuario((prev) => ({ ...prev, rol }))}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Seleccione un rol" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="secretaria">Secretaria</SelectItem>
-                  <SelectItem value="profesional">Profesional</SelectItem>
+                  {rolesDisponibles.map((rol) => (
+                    <SelectItem key={rol} value={rol}>
+                      {rol.charAt(0).toUpperCase() + rol.slice(1)}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
+
               {nuevoUsuario.rol === "profesional" && (
                 <Input name="matricula" placeholder="Matrícula" value={nuevoUsuario.matricula} onChange={handleChange} />
               )}
+
               <DialogClose asChild>
                 <Button type="button" onClick={handleAddUser}>Guardar</Button>
               </DialogClose>
@@ -132,45 +144,47 @@ export default function AdminPanel() {
             </tr>
           </thead>
           <tbody>
-            {usuarios.map((u) => (
-              <tr key={u.id} className="border-t">
-                {editandoId === u.id ? (
-                  <>
-                    <td className="p-2"><Input value={u.nombre} onChange={(e) => handleEditChange(u.id, "nombre", e.target.value)} /></td>
-                    <td className="p-2"><Input value={u.apellido} onChange={(e) => handleEditChange(u.id, "apellido", e.target.value)} /></td>
-                    <td className="p-2"><Input value={u.dni} onChange={(e) => handleEditChange(u.id, "dni", e.target.value)} /></td>
-                    <td className="p-2"><Input type="date" value={u.nacimiento} onChange={(e) => handleEditChange(u.id, "nacimiento", e.target.value)} /></td>
-                    <td className="p-2"><Input value={u.telefono} onChange={(e) => handleEditChange(u.id, "telefono", e.target.value)} /></td>
-                    <td className="p-2"><Input value={u.direccion} onChange={(e) => handleEditChange(u.id, "direccion", e.target.value)} /></td>
-                    <td className="p-2 capitalize">{u.rol}</td>
-                    <td className="p-2">
-                      {u.rol === "profesional" ? (
+            {usuarios.map((u) => {
+              const puede = puedeModificar(u.rol);
+
+              return (
+                <tr key={u.id} className="border-t">
+                  {editandoId === u.id ? (
+                    <>
+                      <td className="p-2"><Input value={u.nombre} onChange={(e) => handleEditChange(u.id, "nombre", e.target.value)} /></td>
+                      <td className="p-2"><Input value={u.apellido} onChange={(e) => handleEditChange(u.id, "apellido", e.target.value)} /></td>
+                      <td className="p-2"><Input value={u.dni} onChange={(e) => handleEditChange(u.id, "dni", e.target.value)} /></td>
+                      <td className="p-2"><Input type="date" value={u.nacimiento} onChange={(e) => handleEditChange(u.id, "nacimiento", e.target.value)} /></td>
+                      <td className="p-2"><Input value={u.telefono} onChange={(e) => handleEditChange(u.id, "telefono", e.target.value)} /></td>
+                      <td className="p-2"><Input value={u.direccion} onChange={(e) => handleEditChange(u.id, "direccion", e.target.value)} /></td>
+                      <td className="p-2 capitalize">{u.rol}</td>
+                      <td className="p-2">{u.rol === "profesional" ? (
                         <Input value={u.matricula || ""} onChange={(e) => handleEditChange(u.id, "matricula", e.target.value)} />
-                      ) : "-"}
-                    </td>
-                    <td className="p-2 flex gap-2">
-                      <Button onClick={cancelarEdicion} variant="outline" size="sm">Cancelar</Button>
-                      <Button onClick={() => setEditandoId(null)} size="sm">Guardar</Button>
-                    </td>
-                  </>
-                ) : (
-                  <>
-                    <td className="p-2">{u.nombre}</td>
-                    <td className="p-2">{u.apellido}</td>
-                    <td className="p-2">{u.dni}</td>
-                    <td className="p-2">{u.nacimiento}</td>
-                    <td className="p-2">{u.telefono}</td>
-                    <td className="p-2">{u.direccion}</td>
-                    <td className="p-2 capitalize">{u.rol}</td>
-                    <td className="p-2">{u.rol === "profesional" ? u.matricula : "-"}</td>
-                    <td className="p-2 flex gap-2">
-                      <Button onClick={() => setEditandoId(u.id)} variant="outline" size="sm">Editar</Button>
-                      <Button onClick={() => handleDelete(u.id)} variant="destructive" size="sm">Eliminar</Button>
-                    </td>
-                  </>
-                )}
-              </tr>
-            ))}
+                      ) : "-"}</td>
+                      <td className="p-2 flex gap-2">
+                        <Button onClick={cancelarEdicion} variant="outline" size="sm">Cancelar</Button>
+                        <Button onClick={() => setEditandoId(null)} size="sm" disabled={!puede}>Guardar</Button>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="p-2">{u.nombre}</td>
+                      <td className="p-2">{u.apellido}</td>
+                      <td className="p-2">{u.dni}</td>
+                      <td className="p-2">{u.nacimiento}</td>
+                      <td className="p-2">{u.telefono}</td>
+                      <td className="p-2">{u.direccion}</td>
+                      <td className="p-2 capitalize">{u.rol}</td>
+                      <td className="p-2">{u.rol === "profesional" ? u.matricula : "-"}</td>
+                      <td className="p-2 flex gap-2">
+                        <Button onClick={() => setEditandoId(u.id)} variant="outline" size="sm" disabled={!puede}>Editar</Button>
+                        <Button onClick={() => handleDelete(u.id)} variant="destructive" size="sm" disabled={!puede}>Eliminar</Button>
+                      </td>
+                    </>
+                  )}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
