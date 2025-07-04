@@ -20,7 +20,7 @@ const buscarPacientesPorNombre = async (req, res) => {
 };
 
 const crearPaciente = async (req, res) => {
-  const { nombre, dni, telefono, email, fecha_nacimiento, obra_social } = req.body;
+  const { nombre, dni, telefono, email, fecha_nacimiento, sexo, obra_social } = req.body;
 
   if (!nombre || !dni) {
     return res.status(400).json({ message: "Nombre y DNI son obligatorios." });
@@ -28,9 +28,9 @@ const crearPaciente = async (req, res) => {
 
   try {
     const [result] = await db.execute(
-      `INSERT INTO pacientes (nombre, dni, telefono, email, fecha_nacimiento, obra_social)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [nombre, dni, telefono, email, fecha_nacimiento, obra_social]
+      `INSERT INTO pacientes (nombre, dni, telefono, email, fecha_nacimiento, sexo, obra_social)
+       VALUES (?, ?, ?, ?, ?, ?,?)`,
+      [nombre, dni, telefono, email, fecha_nacimiento, sexo, obra_social]
     );
 
     res.status(201).json({ message: "Paciente creado", pacienteId: result.insertId });

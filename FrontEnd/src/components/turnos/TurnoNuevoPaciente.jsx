@@ -21,6 +21,7 @@ export default function TurnoNuevoPaciente({ modo = "profesional", doctores = []
     fecha_nacimiento: "",
     fecha: "",
     hora: "",
+    sexo:"",
     osocial: "",
     cobro: "",
     profesionalId: "",
@@ -31,7 +32,7 @@ export default function TurnoNuevoPaciente({ modo = "profesional", doctores = []
   };
 
   const handleGrabar = async () => {
-    const camposObligatorios = ["nombre", "apellido", "dni", "telefono", "fecha", "hora", "osocial"];
+    const camposObligatorios = ["nombre", "apellido", "dni", "telefono", "fecha", "hora","osocial"];
     const faltanCampos = camposObligatorios.some((campo) => !formData[campo]);
     const necesitaMedico = modo === "secretaria" && !formData.profesionalId;
 
@@ -57,6 +58,7 @@ export default function TurnoNuevoPaciente({ modo = "profesional", doctores = []
           telefono: formData.telefono,
           email: formData.email,
           fecha_nacimiento: formData.fecha_nacimiento,
+          sexo:formData.sexo,
           obra_social: formData.osocial,
         }),
       });
@@ -92,6 +94,7 @@ export default function TurnoNuevoPaciente({ modo = "profesional", doctores = []
         fecha_nacimiento: "",
         fecha: "",
         hora: "",
+         sexo: "", 
         osocial: "",
         cobro: "",
         profesionalId: "",
@@ -121,6 +124,19 @@ export default function TurnoNuevoPaciente({ modo = "profesional", doctores = []
               />
             </div>
           ))}
+          <div className="flex items-center">
+  <label htmlFor="sexo" className="w-24 text-black text-sm">Sexo</label>
+  <Select onValueChange={(value) => setFormData((prev) => ({ ...prev, sexo: value }))}>
+    <SelectTrigger className="h-[28px] border border-black bg-white rounded-md w-full">
+      <SelectValue placeholder="Seleccione sexo" />
+    </SelectTrigger>
+    <SelectContent>
+      <SelectItem value="Masculino">Masculino</SelectItem>
+      <SelectItem value="Femenino">Femenino</SelectItem>
+      <SelectItem value="Otro">Otro</SelectItem>
+    </SelectContent>
+  </Select>
+</div>
 
           {/* Fecha de Nacimiento */}
           <div className="flex items-center">
@@ -206,6 +222,7 @@ export default function TurnoNuevoPaciente({ modo = "profesional", doctores = []
                   fecha_nacimiento: "",
                   fecha: "",
                   hora: "",
+                  sexo:"",
                   osocial: "",
                   cobro: "",
                   profesionalId: "",
