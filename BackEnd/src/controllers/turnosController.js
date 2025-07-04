@@ -90,6 +90,32 @@ const actualizarTurno = async (req, res) => {
     res.status(500).json({ message: "Error al actualizar el turno" });
   }
 };
+const obtenerTurnosAtendidosPorDoctor = async (req, res) => {
+  const doctor = decodeURIComponent(req.params.doctor); // por si tiene espacios o tildes
+
+  try {
+    const [rows] = await db.execute(`
+      SELECT 
+        t.id,
+        t.fecha,
+        p.nombre AS name,
+        TIMESTAMPDIFF(YEAR, p.fecha_nacimiento, CURDATE()) AS age,
+        DATE_FORMAT(p.fecha_nacimiento, '%d/%m/%Y') AS birthDate,
+        p.obra_social AS socialSecurity
+      FROM turnos t
+      JOIN pacientes p ON t.paciente_id = p.id
+      WHERE t.estado_atencion = 'atendido'
+        AND t.doctor_nombre = ?
+      ORDER BY t.fecha DESC
+      LIMIT 3
+    `, [doctor]);
+
+    res.status(200).json(rows);
+  } catch (err) {
+    console.error("Error al obtener turnos atendidos:", err);
+    res.status(500).json({ message: "Error del servidor al buscar turnos atendidos" });
+  }
+};
 
 
-module.exports = { crearTurno, obtenerTurnosProximos, actualizarTurno };
+module.exports = {obtenerTurnosAtendidosPorDoctor, crearTurno, obtenerTurnosProximos, actualizarTurno };

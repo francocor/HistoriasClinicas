@@ -39,6 +39,50 @@ const crearPaciente = async (req, res) => {
     res.status(500).json({ message: "Error del servidor" });
   }
 };
+const obtenerPacientes = async (req, res) => {
+  const { obra_social, edad, sexo } = req.query;
+
+  let query = `
+    SELECT 
+      id, 
+      nombre AS name,
+      DATE_FORMAT(fecha_nacimiento, '%d/%m/%Y') AS birthDate,
+      TIMESTAMPDIFF(YEAR, fecha_nacimiento, CURDATE()) AS age,
+      obra_social AS insurance,
+      sexo
+    FROM pacientes
+    WHERE 1=1
+  `;
+
+  const params = [];
+
+  if (obra_social) {
+    query += " AND obra_social = ?";
+    params.push(obra_social);
+  }
+
+  if (sexo) {
+    query += " AND sexo = ?";
+    params.push(sexo);
+  }
+
+  if (edad === "asc") {
+    query += " ORDER BY TIMESTAMPDIFF(YEAR, fecha_nacimiento, CURDATE()) ASC";
+  } else if (edad === "desc") {
+    query += " ORDER BY TIMESTAMPDIFF(YEAR, fecha_nacimiento, CURDATE()) DESC";
+  } else {
+    query += " ORDER BY nombre ASC";
+  }
+
+  try {
+    const [rows] = await db.execute(query, params);
+    res.json(rows);
+  } catch (err) {
+    console.error("Error al obtener pacientes filtrados:", err);
+    res.status(500).json({ message: "Error del servidor al obtener pacientes" });
+  }
+};
 
 
-module.exports = { buscarPacientesPorNombre, crearPaciente };
+
+module.exports = { buscarPacientesPorNombre, crearPaciente, obtenerPacientes };
