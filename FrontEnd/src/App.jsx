@@ -15,7 +15,7 @@ import FichaPaciente from "@/components/ficha-paciente/FichaPaciente";
 import Atencion from "@/components/atencion/Atencion";
 import Turnos from "@/components/turnos/Turnos";
 import Recetas from "@/components/recetas/Recetas";
-import Balance from "@/components/graficos/Balances";
+import Facturacion from "@/components/graficos/Facturacion"; 
 
 // ADMIN + MASTER
 import AdminPanel from "@/components/admin/AdminPanel";
@@ -87,7 +87,7 @@ export default function App() {
             <Route path="atencion" element={<Atencion />} />
             <Route path="turnos" element={<Turnos role="admin" />} />
             <Route path="recetas" element={<Recetas />} />
-            <Route path="graficos" element={<Balance />} />
+            <Route path="facturacion" element={<Facturacion />} /> 
             <Route path="admin" element={<AdminPanel />} />
           </Route>
         )}
@@ -102,7 +102,7 @@ export default function App() {
             <Route path="atencion" element={<Atencion />} />
             <Route path="turnos" element={<Turnos role="profesional" />} />
             <Route path="recetas" element={<Recetas />} />
-            <Route path="graficos" element={<Balance />} />
+            <Route path="facturacion" element={<Facturacion />} /> 
           </Route>
         )}
 
@@ -111,8 +111,7 @@ export default function App() {
           <Route path="/secretaria" element={<LayoutSecretaria />}>
             <Route index element={<HomeSecretaria />} />
             <Route path="medicos" element={<MedicosSecretaria />} />
-            <Route path="turnos" element={<Turnos role="secretaria" />} />
-            <Route path="graficos" element={<Balance />} />
+            <Route path="facturacion" element={<Facturacion />} /> 
           </Route>
         )}
 
@@ -122,3 +121,4 @@ export default function App() {
     </BrowserRouter>
   );
 }
+

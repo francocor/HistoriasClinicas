@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import FiltrosGraficos from "@/components/graficos/FiltrosGraficos";
-import GraficoBarras from "@/components/graficos/GraficoBarras";
 import FacturacionPacientes from "@/components/graficos/FacturacionPacientes";
 import {
   Select,
@@ -9,20 +7,24 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { useUser } from "@/context/UserContext";
 
-const role = "secretaria"; // Temporal: usar contexto luego
-
-export default function Balance() {
-  const [tipoGrafico, setTipoGrafico] = useState("bar");
+export default function Facturacion() {
+  const { user } = useUser();
   const [selectedDoctor, setSelectedDoctor] = useState("");
+
+  const esSecretaria = user?.role === "secretaria";
 
   return (
     <main className="flex-1 px-4 py-6">
-      <h1 className="text-3xl font-semibold text-center mb-6">Gráficos</h1>
+      <h1 className="text-3xl font-semibold text-center mb-6">Facturación</h1>
 
-      {role === "secretaria" && (
-        <div className="mb-6 max-w-sm">
-          <label className="text-base font-medium block mb-2">Seleccionar médico:</label>
+      {/* Filtro visible solo para secretarias */}
+      {esSecretaria && (
+        <div className="mb-6 max-w-sm mx-auto">
+          <label className="text-base font-medium block mb-2">
+            Seleccionar médico:
+          </label>
           <Select onValueChange={setSelectedDoctor}>
             <SelectTrigger className="w-full border border-black rounded-md h-[40px] bg-white">
               <SelectValue placeholder="Elegir médico" />
@@ -35,18 +37,11 @@ export default function Balance() {
         </div>
       )}
 
-      <section className="mb-10">
-        <FiltrosGraficos tipoGrafico={tipoGrafico} setTipoGrafico={setTipoGrafico} />
-      </section>
-
-      {tipoGrafico === "bar" && (
-        <section className="mb-10">
-          <GraficoBarras />
-        </section>
-      )}
-
       <section className="mt-10">
-        <FacturacionPacientes role={role} selectedDoctor={selectedDoctor} />
+        <FacturacionPacientes
+          role={user?.role}
+          selectedDoctor={selectedDoctor}
+        />
       </section>
     </main>
   );

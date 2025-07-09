@@ -14,7 +14,7 @@ import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-export default function FacturacionPacientes({ role = "profesional", selectedDoctor = "pepito" }) {
+export default function FacturacionPacientes({ role = "profesional", selectedDoctor = "" }) {
   const [obraSocial, setObraSocial] = useState("");
   const [estado, setEstado] = useState("");
   const [desde, setDesde] = useState("");
@@ -58,9 +58,7 @@ export default function FacturacionPacientes({ role = "profesional", selectedDoc
 
   const datosFiltrados = useMemo(() => {
     return datos.filter((item) => {
-      const fechaOk =
-        (!desde || item.fecha >= desde) &&
-        (!hasta || item.fecha <= hasta);
+      const fechaOk = (!desde || item.fecha >= desde) && (!hasta || item.fecha <= hasta);
       const obraOk = !obraSocial || item.obraSocial === obraSocial;
       const estadoOk = !estado || item.estado === estado;
       const profesionalOk =

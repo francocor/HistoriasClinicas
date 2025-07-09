@@ -4,33 +4,33 @@ import {
   Activity,
   BookOpen,
   FileText,
-  BarChart2,
+  CreditCard,
   Menu,
   Settings,
-  Users2, 
+  Users2,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import SidebarItem from "./SidebarItem";
 import SettingsMenu from "@/components/common/SettingsMenu";
-import { useUser } from "@/context/UserContext"; 
+import { useUser } from "@/context/UserContext";
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useUser(); 
+  const { user } = useUser();
 
   const items = [
     { icon: Home, label: "Home", path: "/" },
     { icon: Activity, label: "Pacientes", path: "/pacientes" },
     { icon: BookOpen, label: "Turnos", path: "/turnos" },
     { icon: FileText, label: "Recetas", path: "/recetas" },
-    { icon: BarChart2, label: "Gráficos", path: "/graficos" },
+    { icon: CreditCard, label: "Facturación", path: "/facturacion" },
   ];
 
-  // Si el usuario es admin, agregamos "Usuarios"
-  if (user?.role === "admin") {
+  // ✅ Mostrar "Usuarios" para master y admin
+  if (user?.role === "admin" || user?.role === "master") {
     items.push({ icon: Users2, label: "Usuarios", path: "/admin" });
   }
 
@@ -40,15 +40,10 @@ export default function Sidebar() {
         flex flex-col items-center transition-all duration-300
         ${isOpen ? "w-[200px]" : "w-[80px]"} h-screen`}
     >
-      {/* Botón de menú */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="text-black mt-4 mb-6"
-      >
+      <button onClick={() => setIsOpen(!isOpen)} className="text-black mt-4 mb-6">
         <Menu className="h-6 w-6" />
       </button>
 
-      {/* Navegación */}
       <nav className="flex flex-col gap-4 w-full">
         {items.map((item, index) => (
           <SidebarItem
@@ -67,14 +62,12 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* Ajustes botón */}
       <div className="mt-auto mb-6 w-full flex justify-center">
         <button onClick={() => setShowSettings(!showSettings)}>
           <Settings className="w-7 h-7 text-black" />
         </button>
       </div>
 
-      {/* Menú de ajustes */}
       <SettingsMenu visible={showSettings} />
     </aside>
   );

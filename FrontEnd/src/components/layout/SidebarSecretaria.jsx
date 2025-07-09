@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import {
   Home,
-  Activity,
-  BookOpen,
   FileText,
-  BarChart2,
+  CreditCard,
   Menu,
   Settings,
 } from "lucide-react";
@@ -21,8 +19,7 @@ export default function SidebarSecretaria() {
   const items = [
     { icon: Home, label: "Home", path: "/secretaria" },
     { icon: FileText, label: "Médicos", path: "/secretaria/medicos" },
-    { icon: BookOpen, label: "Turnos", path: "/secretaria/turnos" },
-    { icon: BarChart2, label: "Gráficos", path: "/secretaria/graficos" },
+    { icon: CreditCard, label: "Facturación", path: "/secretaria/facturacion" },
   ];
 
   return (
@@ -31,15 +28,10 @@ export default function SidebarSecretaria() {
         flex flex-col items-center transition-all duration-300
         ${isOpen ? "w-[200px]" : "w-[80px]"} h-screen`}
     >
-      {/* Botón de menú */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="text-black mt-4 mb-6"
-      >
+      <button onClick={() => setIsOpen(!isOpen)} className="text-black mt-4 mb-6">
         <Menu className="h-6 w-6" />
       </button>
 
-      {/* Navegación */}
       <nav className="flex flex-col gap-4 w-full">
         {items.map((item, index) => (
           <SidebarItem
@@ -58,14 +50,12 @@ export default function SidebarSecretaria() {
         ))}
       </nav>
 
-      {/* Ajustes botón */}
       <div className="mt-auto mb-6 w-full flex justify-center">
         <button onClick={() => setShowSettings(!showSettings)}>
           <Settings className="w-7 h-7 text-black" />
         </button>
       </div>
 
-      {/* Menú de ajustes */}
       <SettingsMenu visible={showSettings} />
     </aside>
   );
