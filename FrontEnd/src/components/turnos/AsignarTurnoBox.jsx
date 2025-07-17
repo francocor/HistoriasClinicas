@@ -1,17 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Calendar } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import TurnoPaciente from "@/components/turnos/TurnoPaciente";
 import TurnoNuevoPaciente from "@/components/turnos/TurnoNuevoPaciente";
 import BotonHarmonia from "@/components/ui/BotonHarmonia";
+import AgendaPanel from "@/components/agenda/AgendaPanel";
+import { useUser } from "@/context/UserContext";
 import { useNotifications } from "@/context/NotificationContext";
 
 export default function AsignarTurnoBox({ modo = "profesional", doctores = [], onAgregarTurno }) {
   const [showTurnoPaciente, setShowTurnoPaciente] = useState(false);
   const [showTurnoNuevoPaciente, setShowTurnoNuevoPaciente] = useState(false);
   const [showAgenda, setShowAgenda] = useState(false);
+  const [agendaDoctor, setAgendaDoctor] = useState("");
+  const [agendaTurnos, setAgendaTurnos] = useState([]);
 
   const { addNotification } = useNotifications();
+  const { user } = useUser();
 
   const handleNuevoTurno = () => {
     setShowTurnoPaciente(true);
@@ -25,14 +30,30 @@ export default function AsignarTurnoBox({ modo = "profesional", doctores = [], o
     setShowAgenda(false);
   };
 
-  const handleAbrirAgenda = () => {
+  const handleAbrirAgenda = async () => {
     setShowAgenda(true);
     setShowTurnoPaciente(false);
     setShowTurnoNuevoPaciente(false);
 
-    // Simulación de agenda y generación de notificaciones
-    addNotification("📅 Dr. Fernández tiene 3 turnos programados para mañana.");
-    addNotification("🔔 Dra. Juárez aún no tiene agenda armada para mañana.");
+    let doctorId = user.id;
+    if (modo === "secretaria" && doctores.length > 0) {
+      doctorId = doctores[0].id;
+    }
+
+    setAgendaDoctor(doctorId);
+
+    // ejemplo de carga desde backend
+    try {
+      const res = await fetch(`http://localhost:4000/api/turnos?doctorId=${doctorId}`);
+      const data = await res.json();
+      setAgendaTurnos(data);
+
+      // ejemplo de Notificaciones simuladas
+      addNotification(`🔔 Agenda de hoy para el profesional ID ${doctorId} cargada.`);
+    } catch (err) {
+      console.error("Error al cargar agenda:", err);
+      setAgendaTurnos([]);
+    }
   };
 
   return (
@@ -62,7 +83,6 @@ export default function AsignarTurnoBox({ modo = "profesional", doctores = [], o
         </CardContent>
       </Card>
 
-      {/* Formulario para paciente ya cargado */}
       {showTurnoPaciente && (
         <TurnoPaciente
           modo={modo}
@@ -71,7 +91,6 @@ export default function AsignarTurnoBox({ modo = "profesional", doctores = [], o
         />
       )}
 
-      {/* Formulario para paciente nuevo */}
       {showTurnoNuevoPaciente && (
         <TurnoNuevoPaciente
           modo={modo}
@@ -80,21 +99,13 @@ export default function AsignarTurnoBox({ modo = "profesional", doctores = [], o
         />
       )}
 
-      {/* Vista simple de agenda */}
       {showAgenda && (
-        <div className="bg-white w-full max-w-md p-4 border border-black rounded-xl shadow-lg">
-          <h3 className="text-xl font-semibold mb-2 text-center">Agenda del día</h3>
-          <ul className="text-sm text-black space-y-1 list-disc list-inside">
-            <li>09:00 - Juan Pérez</li>
-            <li>09:30 - Laura Gómez</li>
-            <li>10:00 - Carlos Ramírez</li>
-          </ul>
-          <div className="flex justify-end mt-4">
-            <BotonHarmonia onClick={() => setShowAgenda(false)}>
-              Cerrar
-            </BotonHarmonia>
-          </div>
-        </div>
+        <AgendaPanel
+          visible={showAgenda}
+          onClose={() => setShowAgenda(false)}
+          turnos={agendaTurnos}
+          doctor={agendaDoctor}
+        />
       )}
     </div>
   );

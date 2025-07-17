@@ -48,8 +48,7 @@ export default function AtencionHeader() {
           <Dialog>
             <DialogTrigger asChild>
               <Button
-                variant="outline"
-                className="rounded-[40px] h-[31px] w-full sm:w-[100px] text-md font-sans"
+                className="px-6 py-1 bg-gradient-to-b from-[#179cba] to-white text-black border border-black rounded-[40px] shadow hover:opacity-80 transition w-full sm:w-[120px] text-sm font-medium"
               >
                 Cargar
               </Button>
@@ -94,7 +93,10 @@ export default function AtencionHeader() {
                 </Button>
 
                 <DialogClose asChild>
-                  <Button variant="ghost" className="w-full text-gray-500 mt-2">
+                  <Button
+                    variant="ghost"
+                    className="px-6 py-1 bg-gradient-to-b from-white to-[#cfdedb] text-black border border-black rounded-[40px] shadow hover:opacity-80 transition w-full sm:w-[120px] text-sm font-medium mt-2"
+                  >
                     Cancelar
                   </Button>
                 </DialogClose>
