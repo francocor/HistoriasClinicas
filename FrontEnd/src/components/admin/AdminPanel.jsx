@@ -44,6 +44,8 @@ export default function AdminPanel() {
     const id = usuarios.length + 1;
     const nuevo = { id, ...nuevoUsuario };
     setUsuarios((prev) => [...prev, nuevo]);
+
+    // Limpiar formulario
     setNuevoUsuario({
       nombre: "",
       apellido: "",
@@ -116,8 +118,14 @@ export default function AdminPanel() {
                 </SelectContent>
               </Select>
 
-              {nuevoUsuario.rol === "profesional" && (
-                <Input name="matricula" placeholder="Matrícula" value={nuevoUsuario.matricula} onChange={handleChange} />
+              {/* Mostrar campo Matrícula para profesional y admin */}
+              {["profesional", "admin"].includes(nuevoUsuario.rol) && (
+                <Input
+                  name="matricula"
+                  placeholder="Matrícula (opcional para Admin)"
+                  value={nuevoUsuario.matricula}
+                  onChange={handleChange}
+                />
               )}
 
               <DialogClose asChild>
@@ -146,7 +154,6 @@ export default function AdminPanel() {
           <tbody>
             {usuarios.map((u) => {
               const puede = puedeModificar(u.rol);
-
               return (
                 <tr key={u.id} className="border-t">
                   {editandoId === u.id ? (
@@ -158,9 +165,11 @@ export default function AdminPanel() {
                       <td className="p-2"><Input value={u.telefono} onChange={(e) => handleEditChange(u.id, "telefono", e.target.value)} /></td>
                       <td className="p-2"><Input value={u.direccion} onChange={(e) => handleEditChange(u.id, "direccion", e.target.value)} /></td>
                       <td className="p-2 capitalize">{u.rol}</td>
-                      <td className="p-2">{u.rol === "profesional" ? (
-                        <Input value={u.matricula || ""} onChange={(e) => handleEditChange(u.id, "matricula", e.target.value)} />
-                      ) : "-"}</td>
+                      <td className="p-2">
+                        {["profesional", "admin"].includes(u.rol) ? (
+                          <Input value={u.matricula || ""} onChange={(e) => handleEditChange(u.id, "matricula", e.target.value)} />
+                        ) : "-"}
+                      </td>
                       <td className="p-2 flex gap-2">
                         <Button onClick={cancelarEdicion} variant="outline" size="sm">Cancelar</Button>
                         <Button onClick={() => setEditandoId(null)} size="sm" disabled={!puede}>Guardar</Button>
@@ -175,7 +184,9 @@ export default function AdminPanel() {
                       <td className="p-2">{u.telefono}</td>
                       <td className="p-2">{u.direccion}</td>
                       <td className="p-2 capitalize">{u.rol}</td>
-                      <td className="p-2">{u.rol === "profesional" ? u.matricula : "-"}</td>
+                      <td className="p-2">
+                        {["profesional", "admin"].includes(u.rol) ? u.matricula || "-" : "-"}
+                      </td>
                       <td className="p-2 flex gap-2">
                         <Button onClick={() => setEditandoId(u.id)} variant="outline" size="sm" disabled={!puede}>Editar</Button>
                         <Button onClick={() => handleDelete(u.id)} variant="destructive" size="sm" disabled={!puede}>Eliminar</Button>

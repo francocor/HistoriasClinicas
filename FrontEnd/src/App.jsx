@@ -8,14 +8,13 @@ import Login from "@/components/login/Login";
 import { useUser } from "@/context/UserContext";
 
 // PROFESIONAL
-import HomeProfesionales from "@/components/home/HomeProfesionales";
 import Pacientes from "@/components/pacientes/Pacientes";
 import HistoriaClinica from "@/components/historia-clinica/HistoriaClinica";
 import FichaPaciente from "@/components/ficha-paciente/FichaPaciente";
 import Atencion from "@/components/atencion/Atencion";
 import Turnos from "@/components/turnos/Turnos";
 import Recetas from "@/components/recetas/Recetas";
-import Facturacion from "@/components/graficos/Facturacion"; 
+import Facturacion from "@/components/graficos/Facturacion";
 
 // ADMIN + MASTER
 import AdminPanel from "@/components/admin/AdminPanel";
@@ -69,7 +68,7 @@ export default function App() {
               user.role === "secretaria" ? (
                 <Navigate to="/secretaria" replace />
               ) : (
-                <Navigate to="/pacientes" replace />
+                <Navigate to="/turnos" replace />
               )
             ) : (
               <Navigate to="/login" replace />
@@ -80,14 +79,14 @@ export default function App() {
         {/* ADMIN y MASTER comparten rutas */}
         {(user?.role === "admin" || user?.role === "master") && (
           <Route path="/" element={<Layout />}>
-            <Route index element={<HomeProfesionales />} />
+            <Route index element={<Turnos role="admin" />} />
             <Route path="pacientes" element={<Pacientes />} />
             <Route path="historia-clinica" element={<HistoriaClinica />} />
             <Route path="ficha-paciente" element={<FichaPaciente />} />
             <Route path="atencion" element={<Atencion />} />
             <Route path="turnos" element={<Turnos role="admin" />} />
             <Route path="recetas" element={<Recetas />} />
-            <Route path="facturacion" element={<Facturacion />} /> 
+            <Route path="facturacion" element={<Facturacion />} />
             <Route path="admin" element={<AdminPanel />} />
           </Route>
         )}
@@ -95,14 +94,14 @@ export default function App() {
         {/* PROFESIONAL */}
         {user?.role === "profesional" && (
           <Route path="/" element={<Layout />}>
-            <Route index element={<HomeProfesionales />} />
+            <Route index element={<Turnos role="profesional" />} />
             <Route path="pacientes" element={<Pacientes />} />
             <Route path="historia-clinica" element={<HistoriaClinica />} />
             <Route path="ficha-paciente" element={<FichaPaciente />} />
             <Route path="atencion" element={<Atencion />} />
             <Route path="turnos" element={<Turnos role="profesional" />} />
             <Route path="recetas" element={<Recetas />} />
-            <Route path="facturacion" element={<Facturacion />} /> 
+            <Route path="facturacion" element={<Facturacion />} />
           </Route>
         )}
 
@@ -111,7 +110,7 @@ export default function App() {
           <Route path="/secretaria" element={<LayoutSecretaria />}>
             <Route index element={<HomeSecretaria />} />
             <Route path="medicos" element={<MedicosSecretaria />} />
-            <Route path="facturacion" element={<Facturacion />} /> 
+            <Route path="facturacion" element={<Facturacion />} />
           </Route>
         )}
 

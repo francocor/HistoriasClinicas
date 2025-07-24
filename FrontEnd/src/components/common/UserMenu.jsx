@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@/context/UserContext";
 import {
   Dialog,
   DialogContent,
-  DialogTrigger,
   DialogTitle,
   DialogHeader,
   DialogClose,
@@ -12,18 +11,41 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export default function UserMenu({ visible }) {
+export default function UserMenu({ visible, onClose }) {
   const { setUser, user } = useUser();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [horarios, setHorarios] = useState(user?.horarios || "");
+  const menuRef = useRef(null);
+
+  // ✅ Detectar clic afuera del menú (desktop y mobile)
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        onClose();
+      }
+    }
+
+    if (visible) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [visible, onClose]);
 
   if (!visible) return null;
 
   return (
     <>
       {/* Menú flotante */}
-      <div className="absolute top-[90px] right-6 w-[220px] bg-gradient-to-b from-white via-[#4fdfbe] to-[#33bebc] rounded-2xl shadow-lg p-4 z-50">
+      <div
+        ref={menuRef}
+        className="absolute top-[120px] right-4 w-[220px] bg-gradient-to-b from-white via-[#4fdfbe] to-[#33bebc] rounded-2xl shadow-lg p-4 z-50"
+      >
         <ul className="flex flex-col gap-2">
           <button
             onClick={() => setOpen(true)}
@@ -46,9 +68,9 @@ export default function UserMenu({ visible }) {
         </ul>
       </div>
 
-      {/* Modal 100% visible */}
+      {/* Modal para editar horarios */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="fixed inset-0 z-[999] flex items-center justify-center p-4">
+        <DialogContent className="z-[999]">
           <div className="bg-white w-full max-w-md rounded-xl shadow-lg p-6 space-y-5">
             <DialogHeader>
               <DialogTitle className="text-center text-xl font-semibold">

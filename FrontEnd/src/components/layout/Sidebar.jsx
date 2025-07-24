@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  Home,
   Activity,
   BookOpen,
   FileText,
@@ -22,15 +21,14 @@ export default function Sidebar() {
   const { user } = useUser();
 
   const items = [
-    { icon: Home, label: "Home", path: "/" },
+    { icon: BookOpen, label: "Turnos", path: "/turnos" }, // ✅ primero como pantalla principal
     { icon: Activity, label: "Pacientes", path: "/pacientes" },
-    { icon: BookOpen, label: "Turnos", path: "/turnos" },
     { icon: FileText, label: "Recetas", path: "/recetas" },
     { icon: CreditCard, label: "Facturación", path: "/facturacion" },
   ];
 
-  // ✅ Mostrar "Usuarios" para master y admin
-  if (user?.role === "admin" || user?.role === "master") {
+  // ✅ Mostrar "Usuarios" solo para admin y master
+  if (["admin", "master"].includes(user?.role)) {
     items.push({ icon: Users2, label: "Usuarios", path: "/admin" });
   }
 

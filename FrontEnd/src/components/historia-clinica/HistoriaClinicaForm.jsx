@@ -1,12 +1,8 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import React, { useState } from "react";
 import { CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import FormSection from "./FormSection";
 import BotonHarmonia from "@/components/ui/botonHarmonia";
-import { useNavigate } from "react-router-dom";
+import FormSection from "./FormSection";
 
 // Estructura de datos de prueba
 const sections = [
@@ -47,19 +43,43 @@ const sections = [
 ];
 
 export default function HistoriaClinicaForm() {
+  const [modoEdicion, setModoEdicion] = useState(false);
+
+  // Simulamos si hay datos existentes (en producción, esto sería con props o API)
+  const hayDatos = true;
+
   return (
     <ScrollArea className="w-full max-w-5xl bg-white border border-black rounded-md p-4">
-  <CardContent className="space-y-6">
-    {sections.map((section, index) => (
-      <FormSection key={index} title={section.title} columns={section.fields} />
-    ))}
+      <CardContent className="space-y-6">
+        {/* Botón editar si hay datos */}
+        {hayDatos && !modoEdicion && (
+          <div className="flex justify-end mb-2">
+            <BotonHarmonia onClick={() => setModoEdicion(true)}>Editar</BotonHarmonia>
+          </div>
+        )}
 
-    {/* Botones */}
-    <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
-      <BotonHarmonia>Aceptar</BotonHarmonia>
-      <BotonHarmonia>Cancelar</BotonHarmonia>
-    </div>
-  </CardContent>
-</ScrollArea>
+        {/* Secciones del formulario */}
+        {sections.map((section, index) => (
+          <FormSection
+            key={index}
+            title={section.title}
+            columns={section.fields}
+            editable={modoEdicion}
+          />
+        ))}
+
+        {/* Botones inferiores */}
+        <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
+          {modoEdicion ? (
+            <>
+              <BotonHarmonia onClick={() => setModoEdicion(false)}>Guardar</BotonHarmonia>
+              <BotonHarmonia onClick={() => setModoEdicion(false)}>Cancelar</BotonHarmonia>
+            </>
+          ) : (
+            <BotonHarmonia>Volver</BotonHarmonia>
+          )}
+        </div>
+      </CardContent>
+    </ScrollArea>
   );
 }
