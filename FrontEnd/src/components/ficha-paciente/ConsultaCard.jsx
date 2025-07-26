@@ -2,7 +2,6 @@ import React, { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Download, Upload } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogTrigger,
@@ -14,8 +13,16 @@ import {
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
-export default function ConsultaCard({ date, reason, doctor, highlighted }) {
-  const navigate = useNavigate();
+export default function ConsultaCard({
+  date,
+  reason,
+  doctor,
+  diagnostico,
+  sintomas,
+  parametros,
+  tratamiento,
+  medicamentos,
+}) {
   const fileInputRef = useRef(null);
   const [archivo, setArchivo] = useState(null);
   const cardRef = useRef(null);
@@ -59,15 +66,40 @@ export default function ConsultaCard({ date, reason, doctor, highlighted }) {
         {/* Fecha y botón Ver */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
           <span className="text-xl sm:text-2xl font-sans">{date}</span>
-          <Button
-            onClick={() => navigate("/atencion")}
-            className="rounded-full h-[39px] px-6 bg-white text-black shadow hover:bg-gray-100"
-          >
-            Ver
-          </Button>
+
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="rounded-full h-[39px] px-6 bg-white text-black shadow hover:bg-gray-100">
+                Ver
+              </Button>
+            </DialogTrigger>
+
+            <DialogContent className="w-[90vw] sm:w-[600px] max-h-[85vh] overflow-y-auto bg-white z-[9999] rounded-lg shadow-lg">
+              <DialogHeader>
+                <DialogTitle>Detalle de la Consulta</DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-2 text-base sm:text-lg">
+                <p><strong>Fecha:</strong> {date}</p>
+                <p><strong>Médico:</strong> {doctor}</p>
+                <p><strong>Motivo:</strong> {reason}</p>
+                {sintomas && <p><strong>Síntomas:</strong> {sintomas}</p>}
+                {parametros && <p><strong>Parámetros:</strong> {parametros}</p>}
+                {diagnostico && <p><strong>Diagnóstico:</strong> {diagnostico}</p>}
+                {tratamiento && <p><strong>Tratamiento:</strong> {tratamiento}</p>}
+                {medicamentos && <p><strong>Medicamentos:</strong> {medicamentos}</p>}
+              </div>
+
+              <DialogClose asChild>
+                <Button variant="ghost" className="mt-4 w-full text-gray-600">
+                  Cerrar
+                </Button>
+              </DialogClose>
+            </DialogContent>
+          </Dialog>
         </div>
 
-        {/* Motivo, Doctor y Documentos */}
+        {/* Motivo breve y documentos */}
         <div className="flex flex-col sm:flex-row justify-between gap-4">
           <div>
             <p className="text-lg sm:text-2xl font-sans">{reason}</p>
@@ -75,6 +107,7 @@ export default function ConsultaCard({ date, reason, doctor, highlighted }) {
           </div>
 
           <div className="flex flex-col items-end gap-2 w-full sm:w-auto">
+            {/* Modal de documentos */}
             <Dialog>
               <DialogTrigger asChild>
                 <Button className="rounded-full px-4 bg-white text-black shadow hover:bg-gray-100 w-full sm:w-auto">
@@ -82,8 +115,7 @@ export default function ConsultaCard({ date, reason, doctor, highlighted }) {
                 </Button>
               </DialogTrigger>
 
-              {/* 🛠️ Dialog fix con z-index y tamaño */}
-              <DialogContent className="w-[90vw] sm:w-[480px] max-h-[85vh] overflow-y-auto z-[9999] bg-white rounded-lg shadow-lg">
+              <DialogContent className="w-[90vw] sm:w-[480px] max-h-[85vh] overflow-y-auto bg-white rounded-lg shadow-lg z-[9999]">
                 <DialogHeader>
                   <DialogTitle>Gestión de Documentos</DialogTitle>
                 </DialogHeader>
@@ -131,6 +163,7 @@ export default function ConsultaCard({ date, reason, doctor, highlighted }) {
               </DialogContent>
             </Dialog>
 
+            {/* Descargar consulta */}
             <Button
               onClick={handleDescargarConsulta}
               className="rounded-full px-4 text-sm bg-green-500 text-white shadow hover:bg-green-600 w-full sm:w-auto"
@@ -143,4 +176,3 @@ export default function ConsultaCard({ date, reason, doctor, highlighted }) {
     </Card>
   );
 }
-

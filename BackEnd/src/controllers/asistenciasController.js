@@ -33,12 +33,17 @@ const obtenerAsistenciasPresentes = async (req, res) => {
   t.fecha AS appointmentDate,
   t.paciente_id AS patientId,
   p.nombre AS patientName,
-  t.doctor_nombre AS doctor
+  t.doctor_id AS doctorId,
+  u.name AS doctorName,
+  pr.especialidad AS especialidad
 FROM turnos t
 JOIN pacientes p ON t.paciente_id = p.id
-WHERE t.estado_asistencia = 'presente'
-  AND t.estado_atencion is null
-ORDER BY t.fecha DESC;
+JOIN profesionales pr ON t.doctor_id = pr.id
+JOIN users u ON pr.user_id = u.id
+WHERE t.estado_atencion IS NULL
+  AND t.estado_asistencia is NULL 
+  AND t.fecha >= CURDATE()
+ORDER BY t.fecha ASC;
     `);
 
     res.json(rows);

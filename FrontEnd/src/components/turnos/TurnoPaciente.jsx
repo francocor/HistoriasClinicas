@@ -12,14 +12,23 @@ import {
 import { Search } from "lucide-react";
 import Swal from "sweetalert2";
 
-export default function TurnoPaciente({ modo = "profesional", doctores = [], onAgregarTurno }) {
+export default function TurnoPaciente({ modo = "profesional", doctores = [] }) {
   const [cobro, setCobro] = useState("");
   const [doctorSeleccionado, setDoctorSeleccionado] = useState("");
+  const [especialidadSeleccionada, setEspecialidadSeleccionada] = useState("");
   const [busqueda, setBusqueda] = useState("");
   const [resultados, setResultados] = useState([]);
   const [pacienteSeleccionado, setPacienteSeleccionado] = useState(null);
   const [fechaTurno, setFechaTurno] = useState("");
 
+  const storedUser = localStorage.getItem("user");
+  const user = storedUser ? JSON.parse(storedUser) : null;
+  const userId = user?.id;
+
+  const especialidadesUnicas = Array.from(new Set(doctores.map((d) => d.especialidad)));
+  const doctoresFiltrados = doctores.filter((doc) => doc.especialidad === especialidadSeleccionada);
+
+  // Buscar pacientes
   useEffect(() => {
     const delayDebounce = setTimeout(async () => {
       if (busqueda.length > 2) {
@@ -34,20 +43,27 @@ export default function TurnoPaciente({ modo = "profesional", doctores = [], onA
         setResultados([]);
       }
     }, 300);
-
     return () => clearTimeout(delayDebounce);
   }, [busqueda]);
 
+  // Autocompletar profesional logueado
+  useEffect(() => {
+    if (modo === "profesional" && doctores.length > 0) {
+      const miDoctor = doctores.find((doc) => doc.user_id === userId);
+      if (miDoctor) {
+        setEspecialidadSeleccionada(miDoctor.especialidad);
+        setDoctorSeleccionado(miDoctor.profesional_id.toString());
+      }
+    }
+  }, [modo, doctores]);
+
   const handleGrabar = async () => {
-    if (!pacienteSeleccionado || !fechaTurno || (modo === "secretaria" && !doctorSeleccionado)) {
+    if (!pacienteSeleccionado || !fechaTurno || (modo !== "profesional" && !doctorSeleccionado)) {
       Swal.fire("Faltan datos", "Por favor complete todos los campos antes de grabar.", "warning");
       return;
     }
 
-    const doctor =
-      modo === "secretaria"
-        ? doctores.find((d) => d.id.toString() === doctorSeleccionado)?.name
-        : "Dr. Pepito Fernández";
+    const doctorId = parseInt(doctorSeleccionado);
 
     try {
       const res = await fetch("http://localhost:4000/api/turnos", {
@@ -56,22 +72,21 @@ export default function TurnoPaciente({ modo = "profesional", doctores = [], onA
         body: JSON.stringify({
           paciente_id: pacienteSeleccionado.id,
           fecha: fechaTurno,
-          doctor_nombre: doctor,
+          doctor_id: doctorId,
+          especialidad: especialidadSeleccionada,
           creado_por: modo,
         }),
       });
 
       if (!res.ok) throw new Error("Error al crear turno");
 
-      const nuevoTurno = await res.json();
-      Swal.fire("Éxito", "Turno registrado", "success");
-
-      // Resetear
-      setCobro("");
-      setDoctorSeleccionado("");
-      setBusqueda("");
-      setPacienteSeleccionado(null);
-      setFechaTurno("");
+      Swal.fire({
+        icon: "success",
+        title: "Éxito",
+        text: "Turno y paciente registrados",
+      }).then(() => {
+        window.location.reload();
+      });
     } catch (error) {
       console.error("Error al grabar turno:", error);
       Swal.fire("Error", "No se pudo grabar el turno", "error");
@@ -115,7 +130,7 @@ export default function TurnoPaciente({ modo = "profesional", doctores = [], onA
             </ul>
           )}
 
-          {/* Datos del paciente */}
+          {/* Datos paciente */}
           {pacienteSeleccionado && (
             <Card className="border border-black mb-4">
               <CardContent className="p-3 space-y-2">
@@ -127,40 +142,78 @@ export default function TurnoPaciente({ modo = "profesional", doctores = [], onA
             </Card>
           )}
 
+          {/* Especialidad */}
+          {modo !== "profesional" && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">Especialidad:</label>
+              <Select
+                onValueChange={(value) => {
+                  setEspecialidadSeleccionada(value);
+                  setDoctorSeleccionado("");
+                }}
+                value={especialidadSeleccionada}
+              >
+                <SelectTrigger className="w-full h-8 border-black">
+                  <SelectValue placeholder="Seleccione especialidad" />
+                </SelectTrigger>
+                <SelectContent>
+                  {especialidadesUnicas.map((esp) => (
+                    <SelectItem key={esp} value={esp}>
+                      {esp}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           {/* Profesional */}
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Profesional:</label>
-            {modo === "secretaria" ? (
-              <Select onValueChange={setDoctorSeleccionado}>
+            {modo === "profesional" ? (
+              doctorSeleccionado && (
+                <Input
+                  value={doctores.find((d) => d.profesional_id.toString() === doctorSeleccionado)?.name || ""}
+                  readOnly
+                  className="w-full h-8 border-black"
+                />
+              )
+            ) : especialidadSeleccionada ? (
+              <Select onValueChange={setDoctorSeleccionado} value={doctorSeleccionado}>
                 <SelectTrigger className="w-full h-8 border-black">
                   <SelectValue placeholder="Seleccione médico" />
                 </SelectTrigger>
                 <SelectContent>
-                  {doctores.map((doc) => (
-                    <SelectItem key={doc.id} value={doc.id.toString()}>
+                  {doctoresFiltrados.map((doc) => (
+                    <SelectItem key={doc.profesional_id} value={doc.profesional_id.toString()}>
                       {doc.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             ) : (
-              <Input value="Dr. Pepito Fernández" readOnly className="w-full h-8 border-black" />
+              <Input
+                disabled
+                value=""
+                placeholder="Seleccione especialidad primero"
+                className="w-full h-8 border-black text-gray-500"
+              />
             )}
           </div>
 
-          {/* Fecha del turno */}
+          {/* Fecha */}
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Fecha y hora del turno:</label>
             <Input
-  type="datetime-local"
-  className="w-full h-8 border-black"
-  value={fechaTurno}
-  onChange={(e) => setFechaTurno(e.target.value)}
-  min={new Date().toISOString().slice(0, 16)} // esto limita desde hoy con hora
-/>
+              type="datetime-local"
+              className="w-full h-8 border-black"
+              value={fechaTurno}
+              onChange={(e) => setFechaTurno(e.target.value)}
+              min={new Date().toISOString().slice(0, 16)}
+            />
           </div>
 
-          {/* Cobro (opcional) */}
+          {/* Cobro */}
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Cobro:</label>
             <Input
@@ -174,7 +227,7 @@ export default function TurnoPaciente({ modo = "profesional", doctores = [], onA
           <div className="flex justify-between">
             <Button
               onClick={handleGrabar}
-              disabled={!pacienteSeleccionado || !fechaTurno || (modo === "secretaria" && !doctorSeleccionado)}
+              disabled={!pacienteSeleccionado || !fechaTurno || (modo !== "profesional" && !doctorSeleccionado)}
               className="rounded-[40px] bg-gradient-to-b from-cyan-300 to-cyan-500 text-black px-4"
             >
               Grabar
@@ -185,6 +238,7 @@ export default function TurnoPaciente({ modo = "profesional", doctores = [], onA
               onClick={() => {
                 setCobro("");
                 setDoctorSeleccionado("");
+                setEspecialidadSeleccionada("");
                 setBusqueda("");
                 setPacienteSeleccionado(null);
                 setFechaTurno("");

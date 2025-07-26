@@ -11,8 +11,9 @@ import {
 } from "@/components/ui/select";
 import BuscadorPaciente from "@/components/ui/BuscadorPaciente";
 
+
 export default function Turnos({ role = "profesional" }) {
-  const [selectedDoctor, setSelectedDoctor] = useState("");
+  const [selectedDoctor, setSelectedDoctor] = useState([]);
   const [turnos, setTurnos] = useState([]);
   const [profesionales,setProfesionales]= useState([])
   
@@ -68,7 +69,7 @@ export default function Turnos({ role = "profesional" }) {
                 </SelectTrigger>
                 <SelectContent>
   {profesionales.map((doc) => (
-    <SelectItem key={doc.id} value={doc.name
+    <SelectItem key={doc.id} value={doc.id
 }>
       {doc.name
 }

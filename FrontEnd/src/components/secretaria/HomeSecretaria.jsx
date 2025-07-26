@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Calendar } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,7 +31,7 @@ export default function HomeSecretaria() {
   useEffect(() => {
     const fetchTurnos = async () => {
       try {
-        const res = await fetch("http://localhost:4000/api/turnos/proximos");
+        const res = await fetch("http://localhost:4000/api/asistencias/presentes");
         const data = await res.json();
         setTurnos(data);
       } catch (err) {
@@ -76,16 +76,15 @@ export default function HomeSecretaria() {
   const indexStart = (currentPage - 1) * itemsPerPage;
   const turnosPaginados = turnos.slice(indexStart, indexStart + itemsPerPage);
 
-  const handlePrev = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
-  };
-
-  const handleNext = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-  };
+  const handlePrev = () => currentPage > 1 && setCurrentPage(currentPage - 1);
+  const handleNext = () => currentPage < totalPages && setCurrentPage(currentPage + 1);
 
   const abrirModalEdicion = (turno) => {
-    setTurnoSeleccionado(turno);
+    setTurnoSeleccionado({
+      ...turno,
+      doctorId: turno.doctorId,
+      especialidad: turno.especialidad,
+    });
     setModalAbierto(true);
   };
 
@@ -95,11 +94,7 @@ export default function HomeSecretaria() {
     return date.toISOString().slice(0, 16);
   };
 
-  const esFechaValida = (fechaISO) => {
-    const fechaTurno = new Date(fechaISO);
-    const ahora = new Date();
-    return fechaTurno >= ahora;
-  };
+  const esFechaValida = (fechaISO) => new Date(fechaISO) >= new Date();
 
   return (
     <main className="w-full flex flex-col items-center px-4 py-10">
@@ -122,8 +117,8 @@ export default function HomeSecretaria() {
                   <CardContent className="p-4 space-y-2">
                     <div className="flex justify-between items-center">
                       <p className="text-lg font-medium text-black">{appointment.patientName}</p>
-                      <Button onClick={() => marcarAsistencia(appointment.id, "presente")} className="rounded-full bg-white text-black border border-black px-4 h-8 text-sm shadow">
-                        Presente
+                      <Button onClick={() => marcarAsistencia(appointment.id, "ausente")} className="rounded-full bg-white text-black border border-black px-4 h-8 text-sm shadow">
+                        Ausente
                       </Button>
                     </div>
 
@@ -134,16 +129,13 @@ export default function HomeSecretaria() {
                           timeStyle: "short",
                         })}
                       </p>
-                      <Button onClick={() => marcarAsistencia(appointment.id, "ausente")} className="rounded-full bg-white text-black border border-black px-4 h-8 text-sm shadow">
-                        Ausente
+                      <Button onClick={() => abrirModalEdicion(appointment)} className="rounded-full bg-white text-black border border-black px-4 h-8 text-sm shadow">
+                        Editar
                       </Button>
                     </div>
 
                     <div className="flex justify-between items-center">
-                      <p className="text-base text-black">{appointment.doctor}</p>
-                      <Button onClick={() => abrirModalEdicion(appointment)} className="rounded-full bg-white text-black border border-black px-4 h-8 text-sm shadow">
-                        Editar
-                      </Button>
+                      <p className="text-base text-black">{appointment.doctorName}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -156,29 +148,12 @@ export default function HomeSecretaria() {
             <Pagination className="mt-6 w-full flex justify-center">
               <PaginationContent className="flex justify-center gap-6">
                 <PaginationItem>
-                  <PaginationLink
-                    onClick={handlePrev}
-                    disabled={currentPage === 1}
-                    className={`px-6 py-2 rounded-full text-lg min-w-[140px] text-center shadow-md transition-all duration-200 ${
-                      currentPage === 1
-                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                        : "bg-white text-black border border-black hover:bg-gray-100"
-                    }`}
-                  >
+                  <PaginationLink onClick={handlePrev} disabled={currentPage === 1}>
                     Anterior
                   </PaginationLink>
                 </PaginationItem>
-
                 <PaginationItem>
-                  <PaginationLink
-                    onClick={handleNext}
-                    disabled={currentPage === totalPages}
-                    className={`px-6 py-2 rounded-full text-lg min-w-[140px] text-center shadow-md transition-all duration-200 ${
-                      currentPage === totalPages
-                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                        : "bg-white text-black border border-black hover:bg-gray-100"
-                    }`}
-                  >
+                  <PaginationLink onClick={handleNext} disabled={currentPage === totalPages}>
                     Siguiente
                   </PaginationLink>
                 </PaginationItem>
@@ -203,10 +178,53 @@ export default function HomeSecretaria() {
           <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
             <h2 className="text-xl font-semibold mb-4">Editar Turno</h2>
             <div className="space-y-4">
-              <input value={turnoSeleccionado.patientName} onChange={(e) => setTurnoSeleccionado({ ...turnoSeleccionado, patientName: e.target.value })} className="border border-gray-300 p-2 w-full rounded" />
-              <input type="datetime-local" value={formatearFechaLocal(turnoSeleccionado.appointmentDate)} onChange={(e) => setTurnoSeleccionado({ ...turnoSeleccionado, appointmentDate: e.target.value })} className="border border-gray-300 p-2 w-full rounded" />
-              <input value={turnoSeleccionado.doctor} onChange={(e) => setTurnoSeleccionado({ ...turnoSeleccionado, doctor: e.target.value })} className="border border-gray-300 p-2 w-full rounded" />
+              <input
+                value={turnoSeleccionado.patientName}
+                onChange={(e) =>
+                  setTurnoSeleccionado({ ...turnoSeleccionado, patientName: e.target.value })
+                }
+                className="border border-gray-300 p-2 w-full rounded"
+              />
+              <input
+                type="datetime-local"
+                value={formatearFechaLocal(turnoSeleccionado.appointmentDate)}
+                onChange={(e) =>
+                  setTurnoSeleccionado({ ...turnoSeleccionado, appointmentDate: e.target.value })
+                }
+                className="border border-gray-300 p-2 w-full rounded"
+              />
+
+              {/* Doctor y Especialidad */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Doctor</label>
+                <select
+                  className="border border-gray-300 p-2 w-full rounded"
+                  value={turnoSeleccionado.doctorId || ""}
+                  onChange={(e) => {
+                    const selectedId = parseInt(e.target.value);
+                    const doc = profesionales.find((d) => d.id === selectedId);
+                    setTurnoSeleccionado((prev) => ({
+                      ...prev,
+                      doctorId: selectedId,
+                      especialidad: doc?.especialidad || "",
+                    }));
+                  }}
+                >
+                  <option value="" disabled>Seleccionar doctor</option>
+                  {profesionales.map((doc) => (
+                    <option key={doc.id} value={doc.id}>{doc.name}</option>
+                  ))}
+                </select>
+
+                <label className="text-sm font-medium text-gray-700">Especialidad</label>
+                <input
+                  className="border border-gray-300 p-2 w-full rounded"
+                  value={turnoSeleccionado.especialidad || ""}
+                  readOnly
+                />
+              </div>
             </div>
+
             <div className="mt-6 flex justify-end gap-3">
               <Button variant="outline" onClick={() => setModalAbierto(false)}>Cancelar</Button>
               <Button
@@ -216,13 +234,14 @@ export default function HomeSecretaria() {
                   }
 
                   try {
-                    const res = await fetch("http://localhost:4000/api/turnos/" + turnoSeleccionado.id, {
+                    const res = await fetch(`http://localhost:4000/api/turnos/${turnoSeleccionado.id}`, {
                       method: "PUT",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({
                         paciente_nombre: turnoSeleccionado.patientName,
                         fecha: turnoSeleccionado.appointmentDate,
-                        doctor_nombre: turnoSeleccionado.doctor,
+                        doctor_id: turnoSeleccionado.doctorId,
+                        especialidad: turnoSeleccionado.especialidad,
                       }),
                     });
 

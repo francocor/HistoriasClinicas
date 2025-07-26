@@ -13,7 +13,7 @@ export default function Atencion() {
 
       <div className="flex-1 flex flex-col">
         <main className="flex-1 bg-white p-4">
-          <AtencionHeader />
+          <AtencionHeader id={id}/>
           <AtencionCard id={id}/>
         </main>
       </div>

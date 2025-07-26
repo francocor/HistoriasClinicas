@@ -1,32 +1,29 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ConsultaCard from "./ConsultaCard";
 
-export default function ConsultasList() {
-  const consultations = [
-    {
-      date: "01/04/2024",
-      reason: "Dolor abdominal",
-      doctor: "Dra. Paula López",
-    },
-    {
-      date: "15/03/2024",
-      reason: "Control mensual",
-      doctor: "Dr. Juan Torres",
-    },
-    {
-      date: "28/02/2024",
-      reason: "Chequeo general",
-      doctor: "Dr. Juan Torres",
-    },
-    {
-      date: "10/02/2024",
-      reason: "Primera consulta",
-      doctor: "Dra. Paula López",
-    },
-  ];
-
-  const itemsPorPagina = 5;
+export default function ConsultasList({ pacienteId }) {
+  const [consultations, setConsultations] = useState([]);
   const [paginaActual, setPaginaActual] = useState(1);
+  const itemsPorPagina = 5;
+
+  useEffect(() => {
+    const fetchConsultas = async () => {
+      try {
+        const res = await fetch(`http://localhost:4000/api/historias/paciente/${pacienteId}`);
+
+        if (!res.ok) throw new Error("Error al obtener consultas");
+
+        const data = await res.json();
+        // Ordenar por fecha descendente
+        data.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+        setConsultations(data);
+      } catch (err) {
+        console.error("Error:", err);
+      }
+    };
+
+    if (pacienteId) fetchConsultas();
+  }, [pacienteId]);
 
   const totalPaginas = Math.ceil(consultations.length / itemsPorPagina);
   const inicio = (paginaActual - 1) * itemsPorPagina;
@@ -34,31 +31,40 @@ export default function ConsultasList() {
 
   return (
     <div className="space-y-4">
-      {/* Lista paginada */}
-      {paginadas.map((item, index) => (
-        <ConsultaCard key={index} {...item} />
-      ))}
+      {paginadas.length > 0 ? (
+        <>
+          {paginadas.map((item) => (
+            <ConsultaCard
+              key={item.id}
+              date={new Date(item.fecha).toLocaleDateString()}
+              reason={item.motivo}
+              doctor={`ID: ${item.doctor_id}`} // o podés mostrar "Tu consulta" o el nombre si está incluido
+            />
+          ))}
 
-      {/* Botones de navegación */}
-      <div className="flex justify-center gap-6 mt-6 text-lg text-gray-700">
-        {paginaActual > 1 && (
-          <button
-            onClick={() => setPaginaActual((prev) => prev - 1)}
-            className="hover:underline text-blue-600"
-          >
-            ← Página anterior
-          </button>
-        )}
+          <div className="flex justify-center gap-6 mt-6 text-lg text-gray-700">
+            {paginaActual > 1 && (
+              <button
+                onClick={() => setPaginaActual((prev) => prev - 1)}
+                className="hover:underline text-blue-600"
+              >
+                ← Página anterior
+              </button>
+            )}
 
-        {paginaActual < totalPaginas && (
-          <button
-            onClick={() => setPaginaActual((prev) => prev + 1)}
-            className="hover:underline text-blue-600"
-          >
-            Página siguiente →
-          </button>
-        )}
-      </div>
+            {paginaActual < totalPaginas && (
+              <button
+                onClick={() => setPaginaActual((prev) => prev + 1)}
+                className="hover:underline text-blue-600"
+              >
+                Página siguiente →
+              </button>
+            )}
+          </div>
+        </>
+      ) : (
+        <p className="text-center text-gray-500 mt-6">No hay consultas registradas.</p>
+      )}
     </div>
   );
 }

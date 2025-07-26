@@ -28,9 +28,14 @@ export default function PacientesCard({ patient }) {
             <div className="font-normal text-xl sm:text-[32px] mb-2">
               {patient.insurance}
             </div>
-            <BotonHarmonia onClick={() => navigate("/ficha-paciente")}>
-              Ficha
-            </BotonHarmonia>
+            <BotonHarmonia
+  onClick={() =>
+    navigate("/ficha-paciente", { state: { pacienteId: patient.id } })
+  }
+>
+  Ficha
+</BotonHarmonia>
+
           </div>
         </div>
       </CardContent>

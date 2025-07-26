@@ -3,9 +3,19 @@ const db = require("../config/db");
 const obtenerProfesionales = async (req, res) => {
   try {
     const [rows] = await db.execute(`
-      SELECT 
-        u.id, u.name, p.avatar, p.nacimiento, p.telefono, p.horarios, 
-        p.obras_sociales AS obrasSociales, p.plus, p.particular, p.matricula
+       SELECT 
+        p.id AS profesional_id,        
+        u.id AS user_id,                
+        u.name,                         
+        p.avatar,
+        p.nacimiento,
+        p.telefono,
+        p.especialidad,                
+        p.horarios,
+        p.obras_sociales AS obrasSociales,
+        p.plus,
+        p.particular,
+        p.matricula
       FROM users u
       JOIN profesionales p ON u.id = p.user_id
       WHERE u.role = 'profesional'

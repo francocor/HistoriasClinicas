@@ -1,9 +1,9 @@
 const db = require("../config/db");
 
 const crearTurno = async (req, res) => {
-  const { paciente_id, fecha, doctor_nombre, creado_por } = req.body;
+  const { paciente_id, fecha, doctor_id, especialidad, creado_por } = req.body;
 
-  if (!paciente_id || !fecha || !doctor_nombre || !creado_por) {
+  if (!paciente_id || !fecha || !doctor_id || !creado_por) {
     return res.status(400).json({ message: "Faltan datos obligatorios" });
   }
 
@@ -14,17 +14,30 @@ const crearTurno = async (req, res) => {
   }
 
   try {
-    const [result] = await db.execute(
-      `INSERT INTO turnos (paciente_id, fecha, doctor_nombre, creado_por)
-       VALUES (?, ?, ?, ?)`,
-      [paciente_id, fecha, doctor_nombre, creado_por]
+    // Verificar existencia del doctor
+    const [[existeDoctor]] = await db.query(
+      "SELECT id FROM profesionales WHERE id = ?",
+      [doctor_id]
     );
+
+    if (!existeDoctor) {
+      return res.status(400).json({ message: "El doctor seleccionado no existe" });
+    }
+
+    // Insertar el turno
+    const [result] = await db.execute(
+      `INSERT INTO turnos (paciente_id, fecha, doctor_id, especialidad, creado_por)
+       VALUES (?, ?, ?, ?, ?)`,
+      [paciente_id, fecha, doctor_id, especialidad, creado_por]
+    );
+
     res.status(201).json({ message: "Turno creado", turnoId: result.insertId });
   } catch (err) {
     console.error("Error al crear turno:", err);
     res.status(500).json({ message: "Error al crear turno" });
   }
 };
+
 const obtenerTurnosProximos = async (req, res) => {
   try {
     const [rows] = await db.execute(`
@@ -33,7 +46,8 @@ const obtenerTurnosProximos = async (req, res) => {
     t.paciente_id AS patientId, 
     p.nombre AS patientName, 
     t.fecha AS appointmentDate, 
-    t.doctor_nombre AS doctor
+    t.doctor_id AS doctor,
+    t.especialidad as especialidad
   FROM turnos t
   JOIN pacientes p ON t.paciente_id = p.id
   WHERE t.fecha >= NOW()
@@ -48,9 +62,9 @@ const obtenerTurnosProximos = async (req, res) => {
 };
 const actualizarTurno = async (req, res) => {
   const { id } = req.params;
-  const { paciente_nombre, fecha, doctor_nombre } = req.body;
+  const { paciente_nombre, fecha, doctor_id, especialidad } = req.body;
 
-  if (!paciente_nombre || !fecha || !doctor_nombre) {
+  if (!paciente_nombre || !fecha || !doctor_id) {
     return res.status(400).json({ message: "Faltan datos obligatorios" });
   }
 
@@ -79,9 +93,9 @@ const actualizarTurno = async (req, res) => {
     // Actualizar turno
     await db.execute(
       `UPDATE turnos
-       SET paciente_id = ?, fecha = ?, doctor_nombre = ?
+       SET paciente_id = ?, fecha = ?, doctor_id = ?, especialidad=?
        WHERE id = ?`,
-      [paciente_id, fecha, doctor_nombre, id]
+      [paciente_id, fecha, doctor_id, especialidad, id]
     );
 
     res.json({ message: "Turno actualizado correctamente" });
@@ -102,10 +116,11 @@ const obtenerTurnosAtendidosPorDoctor = async (req, res) => {
         TIMESTAMPDIFF(YEAR, p.fecha_nacimiento, CURDATE()) AS age,
         DATE_FORMAT(p.fecha_nacimiento, '%d/%m/%Y') AS birthDate,
         p.obra_social AS socialSecurity
+        t.especialidad as especialidad
       FROM turnos t
       JOIN pacientes p ON t.paciente_id = p.id
       WHERE t.estado_atencion = 'atendido'
-        AND t.doctor_nombre = ?
+        AND t.doctor_id = ?
       ORDER BY t.fecha DESC
       LIMIT 3
     `, [doctor]);

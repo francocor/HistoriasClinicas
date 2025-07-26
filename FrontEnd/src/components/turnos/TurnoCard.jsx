@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import BotonHarmonia from "@/components/ui/BotonHarmonia";
+import Swal from "sweetalert2";
 
 export default function TurnoCard({id,patientId, patientName, appointmentDate, doctor }) {
   const navigate = useNavigate();
@@ -18,6 +19,34 @@ export default function TurnoCard({id,patientId, patientName, appointmentDate, d
     const hora = String(fecha.getHours()).padStart(2, "0");
     return `${dia}/${mes}/${anio} - ${hora} hs`;
   };
+   const marcarAsistencia = async (turnoId, estado) => {
+      try {
+        const res = await fetch(`http://localhost:4000/api/asistencias/${turnoId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ estado }),
+        });
+  
+        if (!res.ok) throw new Error("Error al registrar asistencia");
+  
+        Swal.fire({
+           icon: "success",
+  title: "Inasistencia registrada",
+  text: `Turno marcado como ${estado}`,
+  confirmButtonText: "OK",
+}).then(() => {
+  window.location.reload();
+});
+        
+      } catch (error) {
+        console.error("Error al marcar asistencia:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "No se pudo registrar la asistencia.",
+        });
+      }
+    };
   return (
     <Card className="w-full rounded-[20px] border border-black">
       <CardContent className="p-4 relative space-y-4">
@@ -32,6 +61,9 @@ export default function TurnoCard({id,patientId, patientName, appointmentDate, d
               Atender
             </BotonHarmonia>
           )}
+          <BotonHarmonia onClick={() => marcarAsistencia(id, "ausente")}>
+              Ausente
+            </BotonHarmonia>
         </div>
 
         {/* Fecha del turno */}
