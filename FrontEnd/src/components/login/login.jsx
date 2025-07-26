@@ -135,12 +135,7 @@ export default function Login() {
                 <BotonHarmonia onClick={handleLogin}>Ingresar</BotonHarmonia>
               </div>
 
-              {/* Recuperar contraseña */}
-              <div className="flex justify-center mt-10">
-                <a href="#" className="text-xl text-black underline underline-offset-4">
-                  Recuperar contraseña
-                </a>
-              </div>
+              
             </div>
           </CardContent>
         </Card>

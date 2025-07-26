@@ -19,9 +19,9 @@ export default function Recetas() {
       name: "MisRx",
       image: mrx,
       obraSocial: "Obras Sociales en general",
-      webUrl: "https://www.mrdigital.com.ar/",
-      androidUrl: "https://play.google.com/store/apps/details?id=com.preserfar.misrx",
-      iosUrl: "https://apps.apple.com/app/idXXXXXXXX", // reemplazar por el real si existe
+      webUrl: "https://play.google.com/store/apps/details?id=ar.com.misrx.digital&hl=es_AR",
+      androidUrl: "https://play.google.com/store/apps/details?id=ar.com.misrx.digital&hl=es_AR",
+      iosUrl: "https://apps.apple.com/ar/app/misrx/id1514323707", 
     },
   ];
 

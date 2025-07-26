@@ -20,7 +20,6 @@ export default function HistoriaClinicaHeader() {
         <div className="space-y-1">
           <h1 className="text-4xl font-sans font-normal">Pacientes</h1>
           <h2 className="text-2xl font-sans font-normal">Historias clínicas</h2>
-          <h3 className="text-2xl font-sans font-normal">Nuevo paciente</h3>
         </div>
       </div>
     </div>
