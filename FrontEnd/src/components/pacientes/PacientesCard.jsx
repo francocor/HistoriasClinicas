@@ -15,9 +15,11 @@ export default function PacientesCard({ patient }) {
             <div className="font-normal text-2xl sm:text-[32px]">
               {patient.name}
             </div>
-            <div className="flex gap-4 text-xl sm:text-[32px]">
+            <div className="flex flex-col text-xl sm:text-[32px]">
               <span>{patient.age}</span>
-              <span>{patient.birthDate}</span>
+              <span className="text-base sm:text-xl text-gray-600">
+                {patient.birthDate}
+              </span>
             </div>
           </div>
 
