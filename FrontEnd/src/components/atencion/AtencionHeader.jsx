@@ -20,7 +20,7 @@ export default function AtencionHeader() {
     const file = e.target.files[0];
     if (file) {
       setArchivo(file);
-      // 👉 Podés mostrar vista previa o nombre si querés
+      //  vista previa o nombre 
     }
   };
 
@@ -84,7 +84,7 @@ export default function AtencionHeader() {
                 <Button
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                   onClick={() => {
-                    // 🔗 Tu compañero puede conectar acá el envío al backend
+                    // conectar acá el envío al backend
                     console.log("Archivo a subir:", archivo);
                     alert("Archivo preparado para subir al servidor.");
                   }}
