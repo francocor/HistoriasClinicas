@@ -28,7 +28,9 @@ export default function TurnoNuevoPaciente({ modo = "profesional", doctores = []
   });
 
   const [especialidadSeleccionada, setEspecialidadSeleccionada] = useState("");
+  const [horariosDisponibles, setHorariosDisponibles] = useState([]);
 
+  // Cargar usuario logueado y doctor automático (modo profesional)
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     const user = storedUser ? JSON.parse(storedUser) : null;
@@ -46,11 +48,60 @@ export default function TurnoNuevoPaciente({ modo = "profesional", doctores = []
     }
   }, [modo, doctores]);
 
+  // Cargar horarios del profesional seleccionado
+  useEffect(() => {
+    if (formData.profesional_id) {
+      fetch(`http://localhost:4000/api/horarios/${formData.profesional_id}`)
+        .then(res => res.json())
+        .then(data => setHorariosDisponibles(data))
+        .catch(err => console.error("Error cargando horarios:", err));
+    } else {
+      setHorariosDisponibles([]);
+    }
+  }, [formData.profesional_id]);
+
   const especialidadesUnicas = Array.from(new Set(doctores.map((d) => d.especialidad)));
   const doctoresFiltrados = doctores.filter((d) => d.especialidad === especialidadSeleccionada);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
+  };
+
+  // Validar días disponibles
+  const isDayDisabled = (date) => {
+    const dayName = date.toLocaleDateString("es-ES", { weekday: "long" });
+    const diasProfesional = horariosDisponibles.map(h => h.dia_semana.toLowerCase());
+    return !diasProfesional.includes(dayName.toLowerCase());
+  };
+
+  // Generar lista de horas disponibles según fecha y horarios del doctor
+  const generarHorasDisponibles = () => {
+    if (!formData.fecha || horariosDisponibles.length === 0) return [];
+
+    const nombreDia = new Date(formData.fecha)
+      .toLocaleDateString("es-ES", { weekday: "long" })
+      .toLowerCase();
+
+    const horarioDia = horariosDisponibles.find(
+      h => h.dia_semana.toLowerCase() === nombreDia
+    );
+
+    if (!horarioDia) return [];
+
+    const horas = [];
+    let [h, m] = horarioDia.hora_entrada.split(":").map(Number);
+    const [hFin, mFin] = horarioDia.hora_salida.split(":").map(Number);
+
+    while (h < hFin || (h === hFin && m <= mFin)) {
+      horas.push(`${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`);
+      m += 30; // intervalo de 30 minutos
+      if (m >= 60) {
+        m = 0;
+        h++;
+      }
+    }
+
+    return horas;
   };
 
   const handleGrabar = async () => {
@@ -165,18 +216,36 @@ export default function TurnoNuevoPaciente({ modo = "profesional", doctores = []
               onChange={handleChange}
               className="h-[28px] border border-black bg-white rounded-md flex-1"
               min={new Date().toISOString().split("T")[0]}
+              disabled={!formData.profesional_id}
+              onBlur={(e) => {
+                const fecha = new Date(e.target.value);
+                if (isDayDisabled(fecha)) {
+                  Swal.fire("Día no disponible", "El profesional no trabaja ese día", "warning");
+                  setFormData(prev => ({ ...prev, fecha: "" }));
+                }
+              }}
             />
           </div>
 
+          {/* Select dinámico de horas */}
           <div className="flex items-center">
             <label htmlFor="hora" className="w-24 text-black text-sm">Hora</label>
-            <Input
-              id="hora"
-              type="time"
+            <Select
+              onValueChange={(value) => setFormData(prev => ({ ...prev, hora: value }))}
               value={formData.hora}
-              onChange={handleChange}
-              className="h-[28px] border border-black bg-white rounded-md flex-1"
-            />
+              disabled={!formData.fecha || generarHorasDisponibles().length === 0}
+            >
+              <SelectTrigger className="h-[28px] border border-black bg-white rounded-md w-full">
+                <SelectValue placeholder="Seleccione hora" />
+              </SelectTrigger>
+              <SelectContent>
+                {generarHorasDisponibles().map((hora) => (
+                  <SelectItem key={hora} value={hora}>
+                    {hora}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {modo === "secretaria" ? (
@@ -269,6 +338,7 @@ export default function TurnoNuevoPaciente({ modo = "profesional", doctores = []
                   profesional_id: "",
                 });
                 setEspecialidadSeleccionada("");
+                setHorariosDisponibles([]);
               }}
             >
               Cancelar

@@ -20,6 +20,7 @@ export default function TurnoPaciente({ modo = "profesional", doctores = [] }) {
   const [resultados, setResultados] = useState([]);
   const [pacienteSeleccionado, setPacienteSeleccionado] = useState(null);
   const [fechaTurno, setFechaTurno] = useState("");
+  const [horariosDisponibles, setHorariosDisponibles] = useState([]);
 
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
@@ -57,6 +58,41 @@ export default function TurnoPaciente({ modo = "profesional", doctores = [] }) {
     }
   }, [modo, doctores]);
 
+  // Cargar horarios del doctor seleccionado
+  useEffect(() => {
+    if (doctorSeleccionado) {
+      fetch(`http://localhost:4000/api/horarios/${doctorSeleccionado}`)
+        .then(res => res.json())
+        .then(data => setHorariosDisponibles(data))
+        .catch(err => console.error("Error cargando horarios:", err));
+    } else {
+      setHorariosDisponibles([]);
+    }
+  }, [doctorSeleccionado]);
+
+  // Validar día
+  const validarDia = (fecha) => {
+    const dayName = new Date(fecha).toLocaleDateString("es-ES", { weekday: "long" }).toLowerCase();
+    return horariosDisponibles.some(h => h.dia_semana.toLowerCase() === dayName);
+  };
+
+  // Validar hora
+  const validarHora = (fechaHora) => {
+    const fecha = new Date(fechaHora);
+    const dayName = fecha.toLocaleDateString("es-ES", { weekday: "long" }).toLowerCase();
+    const horarioDia = horariosDisponibles.find(h => h.dia_semana.toLowerCase() === dayName);
+    if (!horarioDia) return false;
+
+    const [hIn, mIn] = horarioDia.hora_entrada.split(":").map(Number);
+    const [hOut, mOut] = horarioDia.hora_salida.split(":").map(Number);
+    const horaNum = fecha.getHours() * 100 + fecha.getMinutes();
+    const entradaNum = hIn * 100 + mIn;
+    const salidaNum = hOut * 100 + mOut;
+
+    return horaNum >= entradaNum && horaNum <= salidaNum;
+  };
+
+  // Grabar turno
   const handleGrabar = async () => {
     if (!pacienteSeleccionado || !fechaTurno || (modo !== "profesional" && !doctorSeleccionado)) {
       Swal.fire("Faltan datos", "Por favor complete todos los campos antes de grabar.", "warning");
@@ -208,8 +244,27 @@ export default function TurnoPaciente({ modo = "profesional", doctores = [] }) {
               type="datetime-local"
               className="w-full h-8 border-black"
               value={fechaTurno}
-              onChange={(e) => setFechaTurno(e.target.value)}
+              onChange={(e) => {
+                const valor = e.target.value;
+
+                // Validar día
+                if (!validarDia(valor)) {
+                  Swal.fire("Día no disponible", "El profesional no trabaja ese día.", "warning");
+                  setFechaTurno("");
+                  return;
+                }
+
+                // Validar horario
+                if (!validarHora(valor)) {
+                  Swal.fire("Horario inválido", "El profesional no atiende en esa franja horaria.", "warning");
+                  setFechaTurno("");
+                  return;
+                }
+
+                setFechaTurno(valor);
+              }}
               min={new Date().toISOString().slice(0, 16)}
+              disabled={!doctorSeleccionado}
             />
           </div>
 

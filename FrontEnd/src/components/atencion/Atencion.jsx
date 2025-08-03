@@ -48,7 +48,7 @@ export default function Atencion() {
     e.preventDefault();
 
     try {
-      // Marcar turno como atendido
+      // 1️⃣ Marcar turno como atendido
       const res = await fetch(`http://localhost:4000/api/atendido/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -57,22 +57,28 @@ export default function Atencion() {
 
       if (!res.ok) throw new Error("Error al marcar turno como atendido");
 
-      // Crear historia clínica
+      // 2️⃣ Crear formData para historia clínica
+      const data = new FormData();
+      data.append("turno_id", id);
+      data.append("paciente_id", patientId);
+      data.append("doctor_id", doctorId);
+      data.append("fecha", formData.fechaHora);
+      data.append("motivo", formData.motivo);
+      data.append("sintomas", formData.sintomas);
+      data.append("parametros", formData.parametros);
+      data.append("diagnostico", formData.diagnostico);
+      data.append("tratamiento", formData.tratamiento);
+      data.append("medicamentos", formData.medicamentos);
+
+      // Agregar archivo solo si existe
+      if (archivo) {
+        data.append("archivo", archivo);
+      }
+
+      // 3️⃣ Enviar historia clínica a la API
       const historiaRes = await fetch("http://localhost:4000/api/historias", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          turno_id: id,
-          paciente_id: patientId,
-          doctor_id: doctorId,
-          fecha: formData.fechaHora,
-          motivo: formData.motivo,
-          sintomas: formData.sintomas,
-          parametros: formData.parametros,
-          diagnostico: formData.diagnostico,
-          tratamiento: formData.tratamiento,
-          medicamentos: formData.medicamentos,
-        }),
+        body: data,
       });
 
       if (!historiaRes.ok) throw new Error("Error al guardar historia clínica");
@@ -144,22 +150,12 @@ export default function Atencion() {
                         </div>
                       )}
 
-                      <Button
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                        onClick={() => {
-                          console.log("Archivo a subir:", archivo);
-                          alert("Archivo preparado para subir al servidor.");
-                        }}
-                      >
-                        Subir documento
-                      </Button>
-
                       <DialogClose asChild>
                         <Button
                           variant="ghost"
                           className="px-6 py-1 bg-gradient-to-b from-white to-[#cfdedb] text-black border border-black rounded-[40px] shadow hover:opacity-80 transition w-full sm:w-[120px] text-sm font-medium mt-2"
                         >
-                          Cancelar
+                          Cerrar
                         </Button>
                       </DialogClose>
                     </div>

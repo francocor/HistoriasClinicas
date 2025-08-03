@@ -1,5 +1,6 @@
 const db = require("../config/db");
 
+// ✅ Crear historia clínica con archivo opcional
 const crearHistoriaClinica = async (req, res) => {
   const {
     turno_id,
@@ -14,6 +15,11 @@ const crearHistoriaClinica = async (req, res) => {
     medicamentos
   } = req.body;
 
+  // Obtener archivo si existe
+  const archivo = req.file ? req.file.buffer : null;
+  const nombreArchivo = req.file ? req.file.originalname : null;
+  const tipoArchivo = req.file ? req.file.mimetype : null;
+
   if (!turno_id || !paciente_id || !doctor_id || !fecha || !motivo || !sintomas || !diagnostico || !tratamiento) {
     return res.status(400).json({ message: "Faltan campos obligatorios" });
   }
@@ -21,9 +27,23 @@ const crearHistoriaClinica = async (req, res) => {
   try {
     await db.execute(
       `INSERT INTO historias_clinicas 
-        (turno_id, paciente_id, doctor_id, fecha, motivo, sintomas, parametros, diagnostico, tratamiento, medicamentos)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [turno_id, paciente_id, doctor_id, fecha, motivo, sintomas, parametros, diagnostico, tratamiento, medicamentos]
+        (turno_id, paciente_id, doctor_id, fecha, motivo, sintomas, parametros, diagnostico, tratamiento, medicamentos, archivo, nombre_archivo, tipo_archivo)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        turno_id,
+        paciente_id,
+        doctor_id,
+        fecha,
+        motivo,
+        sintomas,
+        parametros || null,
+        diagnostico,
+        tratamiento,
+        medicamentos || null,
+        archivo,
+        nombreArchivo,
+        tipoArchivo
+      ]
     );
 
     res.status(201).json({ message: "Historia clínica registrada correctamente" });
@@ -32,6 +52,8 @@ const crearHistoriaClinica = async (req, res) => {
     res.status(500).json({ message: "Error al guardar historia clínica" });
   }
 };
+
+// ✅ Obtener historias por paciente
 const obtenerHistoriasPorPaciente = async (req, res) => {
   const { pacienteId } = req.params;
 
@@ -54,6 +76,7 @@ const obtenerHistoriasPorPaciente = async (req, res) => {
   }
 };
 
+// ✅ Obtener historias por doctor
 const obtenerHistoriasPorDoctor = async (req, res) => {
   const { doctorId } = req.params;
 
@@ -75,7 +98,6 @@ const obtenerHistoriasPorDoctor = async (req, res) => {
     res.status(500).json({ message: "Error del servidor" });
   }
 };
-
 
 module.exports = {
   crearHistoriaClinica,

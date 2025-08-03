@@ -11,7 +11,6 @@ const obtenerProfesionales = async (req, res) => {
         p.nacimiento,
         p.telefono,
         p.especialidad,                
-        p.horarios,
         p.obras_sociales AS obrasSociales,
         p.plus,
         p.particular,

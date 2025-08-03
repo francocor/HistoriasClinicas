@@ -85,9 +85,9 @@ export default function Turnos({ role = "profesional" }) {
 
         {/* COLUMNA DERECHA */}
         <div className="w-full lg:w-[400px] flex flex-col items-center gap-6">
-          <div className="w-full">
+          {/* <div className="w-full">
             <BuscadorPaciente />
-          </div>
+          </div> */}
 
           <AsignarTurnoBox
             modo={role}
