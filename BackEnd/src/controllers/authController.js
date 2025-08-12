@@ -56,8 +56,8 @@ const registrarUsuario = async (req, res) => {
 
     // Si es profesional o admin con matrícula válida → crear en profesionales
     const esProfesional =
-      role === "profesional" || (role === "admin" && matricula && matricula.trim() !== "");
-
+      role.toLowerCase() === "profesional" || (role.toLowerCase() === "admin" && matricula && matricula.trim() !== "");
+    
     if (esProfesional) {
       await db.query(
         `INSERT INTO profesionales (
@@ -67,9 +67,17 @@ const registrarUsuario = async (req, res) => {
       );
     }
 
-    res.status(201).json({ id: userId, username, role, name: nombreCompleto });
+        const [finalUser] = await db.query(`
+      SELECT u.id, u.username, u.name, u.role,
+            p.matricula, p.especialidad
+      FROM users u
+      LEFT JOIN profesionales p ON u.id = p.user_id
+      WHERE u.id = ?
+    `, [userId]);
+    res.status(201).json(finalUser[0]);
+
   } catch (error) {
-    console.error("Error al registrar usuario:", error);
+    console.error("Error al registrar usuario:", error.message, error);
     res.status(500).json({ error: "Error al registrar usuario" });
   }
 };
