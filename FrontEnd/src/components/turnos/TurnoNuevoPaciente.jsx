@@ -32,7 +32,7 @@ export default function TurnoNuevoPaciente({ modo = "profesional", doctores = []
 
   // Cargar usuario logueado y doctor automático (modo profesional)
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
+    const storedUser = sessionStorage.getItem("user");
     const user = storedUser ? JSON.parse(storedUser) : null;
     const userId = user?.id;
 

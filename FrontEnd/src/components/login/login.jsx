@@ -43,10 +43,10 @@ export default function Login() {
       const now = Date.now();
       const expiry = now + 60 * 60 * 1000; // 1 hora
 
-      // Guardamos en localStorage
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("sessionExpiry", expiry.toString());
+      // Guardamos en sessionStorage
+        sessionStorage.setItem("token", token);
+    sessionStorage.setItem("user", JSON.stringify(user));
+    sessionStorage.setItem("sessionExpiry", expiry.toString());
 
       // Actualizamos contexto global
       setUser(user);
@@ -62,7 +62,7 @@ export default function Login() {
 
     } catch (error) {
       console.error("Login error:", error.message);
-      localStorage.clear();
+      sessionStorage.clear();
       setErrorMsg(error.message || "Error inesperado");
     }
   };

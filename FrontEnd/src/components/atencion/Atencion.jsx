@@ -29,7 +29,7 @@ export default function Atencion() {
     medicamentos: "",
   });
 
-  const doctor = JSON.parse(localStorage.getItem("user"));
+  const doctor = JSON.parse(sessionStorage.getItem("user"));
   const doctorId = doctor?.id;
 
   const { state } = useLocation();

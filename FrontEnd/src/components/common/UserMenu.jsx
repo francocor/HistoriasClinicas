@@ -55,9 +55,9 @@ export default function UserMenu({ visible, onClose }) {
           </button>
           <button
             onClick={() => {
-              localStorage.removeItem("user");
-              localStorage.removeItem("token");
-              localStorage.removeItem("sessionExpiry");
+              sessionStorage.removeItem("user");
+              sessionStorage.removeItem("token");
+              sessionStorage.removeItem("sessionExpiry");
               setUser(null);
               navigate("/login");
             }}

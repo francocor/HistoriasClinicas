@@ -27,17 +27,17 @@ export default function App() {
   const { user, setUser, isReady } = useUser();
 
   useEffect(() => {
-    const expiry = parseInt(localStorage.getItem("sessionExpiry") || "0", 10);
+    const expiry = parseInt(sessionStorage.getItem("sessionExpiry") || "0", 10);
     const isExpired = user && Date.now() > expiry;
 
     if (isExpired) {
-      localStorage.clear();
+      sessionStorage.clear();
       setUser(null);
     }
   }, [user, setUser]);
 
   const isSessionValid = () => {
-    const expiry = parseInt(localStorage.getItem("sessionExpiry") || "0", 10);
+    const expiry = parseInt(sessionStorage.getItem("sessionExpiry") || "0", 10);
     return Date.now() < expiry;
   };
 

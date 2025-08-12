@@ -22,7 +22,7 @@ export default function TurnoPaciente({ modo = "profesional", doctores = [] }) {
   const [fechaTurno, setFechaTurno] = useState("");
   const [horariosDisponibles, setHorariosDisponibles] = useState([]);
 
-  const storedUser = localStorage.getItem("user");
+  const storedUser = sessionStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
   const userId = user?.id;
 

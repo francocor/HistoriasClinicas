@@ -7,7 +7,7 @@ import Swal from "sweetalert2";
 
 export default function TurnoCard({id,patientId, patientName, appointmentDate, doctor }) {
   const navigate = useNavigate();
-   const user = JSON.parse(localStorage.getItem("user"));
+   const user = JSON.parse(sessionStorageStorage.getItem("user"));
   const role = user?.role;
 
   // Formatear fecha (ej: 14/06/2025 - 10 hs)

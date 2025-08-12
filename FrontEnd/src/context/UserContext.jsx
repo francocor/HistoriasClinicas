@@ -7,11 +7,11 @@ export function UserProvider({ children }) {
   const [token, setToken] = useState(null);
   const [isReady, setIsReady] = useState(false); // ✅ importante
 
-  // Al montar, cargamos desde localStorage si la sesión es válida
+  // Al montar, cargamos desde sessionStorage si la sesión es válida
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    const savedToken = localStorage.getItem("token");
-    const expiry = parseInt(localStorage.getItem("sessionExpiry") || "0", 10);
+    const savedUser = sessionStorage.getItem("user");
+    const savedToken = sessionStorage.getItem("token");
+    const expiry = parseInt(sessionStorage.getItem("sessionExpiry") || "0", 10);
 
     const now = Date.now();
     const isValid = now < expiry;
@@ -23,9 +23,9 @@ export function UserProvider({ children }) {
       setUser(JSON.parse(savedUser));
       setToken(savedToken);
     } else {
-      localStorage.removeItem("user");
-      localStorage.removeItem("token");
-      localStorage.removeItem("sessionExpiry");
+      sessionStorage.removeItem("user");
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("sessionExpiry");
     }
 
     setIsReady(true); // ✅ indica que ya cargó
@@ -33,17 +33,17 @@ export function UserProvider({ children }) {
 
   useEffect(() => {
     if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
+      sessionStorage.setItem("user", JSON.stringify(user));
     } else {
-      localStorage.removeItem("user");
+      sessionStorage.removeItem("user");
     }
   }, [user]);
 
   useEffect(() => {
     if (token) {
-      localStorage.setItem("token", token);
+      sessionStorage.setItem("token", token);
     } else {
-      localStorage.removeItem("token");
+      sessionStorage.removeItem("token");
     }
   }, [token]);
 
