@@ -124,6 +124,42 @@ const actualizarUsuario = async (req, res) => {
 
   res.json(updated[0]);
 };
+const borrarUsuario = async (req, res) => {
+   const { id } = req.params;
 
+  try {
+    // Si tu db es mysql2/promise con pool:
+    const conn = await db.getConnection?.();
 
-module.exports = { login,registrarUsuario, obtenerUsuarios, actualizarUsuario };
+    if (conn) {
+      try {
+        await conn.beginTransaction();
+        await conn.query("DELETE FROM profesionales WHERE user_id = ?", [id]);
+        const [userResult] = await conn.query("DELETE FROM users WHERE id = ?", [id]);
+        await conn.commit();
+        conn.release();
+
+        // Si querés devolver info mínima:
+        // return res.json({ deleted: userResult.affectedRows > 0 });
+        return res.status(204).send(); // sin cuerpo
+      } catch (e) {
+        await conn.rollback();
+        conn.release();
+        console.error("Error al borrar usuario (tx):", e);
+        return res.status(500).json({ error: "Error al eliminar usuario" });
+      }
+    }
+
+    // Fallback sin transacción dedicada
+    await db.query("DELETE FROM profesionales WHERE user_id = ?", [id]);
+    const [userResult] = await db.query("DELETE FROM users WHERE id = ?", [id]);
+    // return res.json({ deleted: userResult.affectedRows > 0 });
+    return res.status(204).send();
+  } catch (error) {
+    console.error("Error al eliminar usuario:", error);
+    return res.status(500).json({ error: "Error al eliminar usuario" });
+  }
+       
+};
+
+module.exports = { login,registrarUsuario, obtenerUsuarios, actualizarUsuario,borrarUsuario  };
