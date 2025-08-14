@@ -1,20 +1,49 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Bell, User } from "lucide-react";
 import UserMenu from "@/components/common/UserMenu";
 import { useUser } from "@/context/UserContext";
-import { useNotifications } from "@/context/NotificationContext";
 import logo from "@/assets/Logo.png";
 
 export default function Header() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const { user } = useUser();
-  const { notifications, clearNotifications } = useNotifications();
+  const [notifications, setNotifications] = useState([]);
 
   const displayName =
     user?.role === "secretaria"
       ? `Secret. ${user.name}`
       : `Dr. ${user?.name ?? "Usuario"}`;
+
+  // 🧠 Cargar turnos del día para el profesional
+  useEffect(() => {
+    const cargarNotificacionesDelDia = async () => {
+      try {
+        if (!user || !user.id || user.role === "secretaria") return;
+
+        const res = await fetch(`http://localhost:4000/api/turnos/hoy/${user.id}`);
+        const data = await res.json();
+
+        const mensajes = data.map((turno) => {
+          const hora = new Date(turno.fecha).toLocaleTimeString("es-AR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+          return `Turno con ${turno.paciente} a las ${hora}`;
+        });
+
+        setNotifications(mensajes);
+      } catch (error) {
+        console.error("Error al cargar notificaciones de turnos:", error);
+      }
+    };
+
+    cargarNotificacionesDelDia();
+
+    // Opcional: refresco automático cada X segundos
+    const interval = setInterval(cargarNotificacionesDelDia, 30000); // cada 30s
+    return () => clearInterval(interval);
+  }, [user]);
 
   return (
     <header className="w-full bg-gradient-to-r from-white via-[#4fdfbe] to-[#33bebc] px-4 sm:px-6 py-2">
@@ -35,7 +64,8 @@ export default function Header() {
               className="w-6 h-6 text-black cursor-pointer"
               onClick={() => setShowNotifications(!showNotifications)}
             />
-            {/* 🔴 Badge de cantidad */}
+
+            {/* 🔴 Badge */}
             {notifications.length > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-md">
                 {notifications.length}
@@ -46,11 +76,15 @@ export default function Header() {
             {showNotifications && (
               <div className="absolute right-0 mt-2 w-[280px] bg-white rounded-lg shadow-lg border border-gray-300 z-50">
                 <div className="p-4 space-y-2">
-                  {notifications.map((nota, i) => (
-                    <p key={i} className="text-sm text-black">{nota}</p>
-                  ))}
+                  {notifications.length === 0 ? (
+                    <p className="text-sm text-gray-500">No hay notificaciones</p>
+                  ) : (
+                    notifications.map((nota, i) => (
+                      <p key={i} className="text-sm text-black">{nota}</p>
+                    ))
+                  )}
                   <button
-                    onClick={clearNotifications}
+                    onClick={() => setNotifications([])}
                     className="text-sm text-gray-500 hover:text-black mt-2"
                   >
                     Limpiar notificaciones

@@ -133,4 +133,27 @@ const obtenerTurnosAtendidosPorDoctor = async (req, res) => {
 };
 
 
-module.exports = {obtenerTurnosAtendidosPorDoctor, crearTurno, obtenerTurnosProximos, actualizarTurno };
+const obtenerTurnosDelDia = async (req, res) => {
+  const doctorId = req.params.doctorId;
+
+  try {
+    const [rows] = await db.query(
+      `SELECT 
+         t.id,
+         t.fecha,
+         p.nombre AS paciente
+       FROM turnos t
+       JOIN pacientes p ON t.paciente_id = p.id
+       WHERE DATE(t.fecha) = CURDATE() AND t.doctor_id = ?
+       ORDER BY t.fecha ASC`,
+      [doctorId]
+    );
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Error al obtener turnos del día:", error);
+    res.status(500).json({ message: "Error al obtener turnos del día" });
+  }
+};
+
+module.exports = {obtenerTurnosAtendidosPorDoctor, crearTurno, obtenerTurnosProximos, actualizarTurno, obtenerTurnosDelDia };
