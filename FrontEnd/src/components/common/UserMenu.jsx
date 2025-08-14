@@ -18,22 +18,36 @@ export default function UserMenu({ visible, onClose }) {
   const [horarios, setHorarios] = useState(user?.horarios || "");
   const menuRef = useRef(null);
 
-  // ✅ Detectar clic afuera del menú (desktop y mobile)
+  
   useEffect(() => {
-    function handleClickOutside(event) {
+    function handleOutsideClick(event) {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         onClose();
       }
     }
 
+    function handleScroll() {
+      onClose();
+    }
+
+    function handleEscape(event) {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    }
+
     if (visible) {
-      document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("touchstart", handleClickOutside);
+      document.addEventListener("mousedown", handleOutsideClick);
+      document.addEventListener("touchstart", handleOutsideClick);
+      document.addEventListener("scroll", handleScroll);
+      document.addEventListener("keydown", handleEscape);
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("touchstart", handleClickOutside);
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("touchstart", handleOutsideClick);
+      document.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("keydown", handleEscape);
     };
   }, [visible, onClose]);
 
@@ -44,7 +58,8 @@ export default function UserMenu({ visible, onClose }) {
       {/* Menú flotante */}
       <div
         ref={menuRef}
-        className="absolute top-[120px] right-4 w-[220px] bg-gradient-to-b from-white via-[#4fdfbe] to-[#33bebc] rounded-2xl shadow-lg p-4 z-50"
+        className="absolute right-4 w-[220px] bg-gradient-to-b from-white via-[#4fdfbe] to-[#33bebc] rounded-2xl shadow-lg p-4 z-50
+           top-[110px] sm:top-[85px] transition-all duration-300 ease-in-out"
       >
         <ul className="flex flex-col gap-2">
           <button
