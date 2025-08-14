@@ -10,7 +10,7 @@ export default function FichaPaciente() {
   return (
     <div className="w-full min-h-screen overflow-y-auto bg-white px-4 py-6">
       <div className="max-w-6xl mx-auto space-y-6">
-        <FichaPacienteHeader />
+        <FichaPacienteHeader pacienteId={pacienteId} />
         {pacienteId ? (
           <ConsultasList pacienteId={pacienteId} />
         ) : (

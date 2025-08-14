@@ -1,32 +1,50 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, {useState,useEffect} from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Download } from "lucide-react";
 import BotonHarmonia from "@/components/ui/botonHarmonia";
 
-export default function FichaPacienteHeader() {
+export default function FichaPacienteHeader({ pacienteId }) {
   const navigate = useNavigate();
+const params = useParams();
+  const effectiveId = pacienteId ?? params.id; // por si viene por props o por ruta
 
-  // ⚠️ Usá un ID real del paciente desde contexto o props
-  const pacienteId = 1;
+  const [paciente, setPaciente] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleDescargarFicha = async () => {
+  useEffect(() => {
+    const fetchPaciente = async () => {
+      try {
+        const res = await fetch(`http://localhost:4000/api/pacientes/${pacienteId}`);
+        if (!res.ok) throw new Error("Error al obtener paciente");
+        const data = await res.json();
+        setPaciente(data);
+      } catch (error) {
+        console.error("Error al traer paciente:", error);
+      }
+    };
+
+    if (pacienteId) fetchPaciente();
+  }, [pacienteId]);
+  
+
+ const handleDescargarExcel = async () => {
     try {
-      const response = await fetch(`http://localhost:4000/api/pacientes/descargar-ficha/${pacienteId}`);
-      if (!response.ok) throw new Error("Error al descargar ficha");
+      const response = await fetch(`http://localhost:4000/api/pacientes/descargar-excel/${pacienteId}`);
+      if (!response.ok) throw new Error("Error al descargar Excel");
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-
       const link = document.createElement("a");
       link.href = url;
-      link.download = `ficha_paciente_${pacienteId}.pdf`;
+      link.download = `ficha_paciente_${paciente.nombre}.xlsx`;
       link.click();
-
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("Error al descargar ficha:", error);
-      alert("No se pudo descargar la ficha del paciente.");
+      console.error("Error al descargar Excel:", error);
+      // si usás Swal, reemplazá por un swal; dejo alert para simplicidad
+      alert("No se pudo descargar el Excel del paciente.");
     }
   };
 
@@ -49,15 +67,20 @@ export default function FichaPacienteHeader() {
 
       {/* Nombre y botones de acción */}
       <div className="mb-6">
-        <h3 className="text-xl sm:text-2xl font-sans font-normal mb-3">Nombre Paciente</h3>
-
+<h3 className="text-xl sm:text-2xl font-sans font-normal mb-3">
+          {loading
+            ? "Cargando..."
+            : error
+              ? "Paciente no disponible"
+              : (paciente?.nombre ?? paciente?.nombreCompleto ?? "Sin nombre")}
+        </h3>
         <div className="flex flex-col sm:flex-row justify-between gap-4">
-          <BotonHarmonia onClick={() => navigate("/historia-clinica")}>
+          <BotonHarmonia onClick={() => navigate("/historia-clinica", { state: { paciente } })}>
             <span className="text-lg sm:text-2xl font-sans font-normal">Historia Clínica</span>
           </BotonHarmonia>
 
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <BotonHarmonia onClick={handleDescargarFicha} className="w-full sm:w-auto">
+            <BotonHarmonia onClick={handleDescargarExcel} className="w-full sm:w-auto">
               <span className="text-base sm:text-xl font-sans font-normal">
                 Descargar info del paciente
               </span>
