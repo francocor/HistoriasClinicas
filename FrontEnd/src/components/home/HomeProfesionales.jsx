@@ -7,7 +7,7 @@ export default function HomeProfesionales() {
   const [vistosRecientemente, setVistosRecientemente] = useState([]);
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
+    const user = JSON.parse(sessionStorage.getItem("user"));
     const nombreDoctor = user?.nombre;
 
     if (!nombreDoctor) return;

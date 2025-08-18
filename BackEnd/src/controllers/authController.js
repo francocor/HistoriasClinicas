@@ -161,5 +161,90 @@ const borrarUsuario = async (req, res) => {
   }
        
 };
+function puedeResetearPassword(reqUser, targetUser) {
+  if (!reqUser || !targetUser) return false;
+  if (reqUser.id === targetUser.id) return false; // no resetearse a sí mismo
+  if (reqUser.role === 'master') {
+    return targetUser.role !== 'master';
+  }
+  if (reqUser.role === 'admin') {
+    return !['admin', 'master'].includes(targetUser.role);
+  }
+  return false;
+}
 
-module.exports = { login,registrarUsuario, obtenerUsuarios, actualizarUsuario,borrarUsuario  };
+async function resetPasswordUsuario(req, res) {
+  try {
+    const { id } = req.params;
+    const NEW_PASSWORD = (req.body && req.body.newPassword) || '1234';
+
+    // Traer el usuario target para verificar rol
+    const [rows] = await db.query('SELECT id, role FROM users WHERE id = ?', [id]);
+    if (!rows.length) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const targetUser = rows[0];
+
+    // req.user debe existir si usás auth; si no, setearlo stub/omitir chequeo
+    if (req.user) {
+      if (!puedeResetearPassword(req.user, targetUser)) {
+        return res.status(403).json({ error: 'No tenés permisos para esta acción' });
+      }
+    }
+
+    const hash = await bcrypt.hash(NEW_PASSWORD, 10);
+    await db.query('UPDATE users SET password = ? WHERE id = ?', [hash, id]);
+
+    return res.status(200).json({ ok: true, id: Number(id) });
+  } catch (err) {
+    console.error('resetPasswordUsuario error:', err);
+    return res.status(500).json({ error: 'Error interno' });
+  }
+}
+function validatePassword(pwd) {
+  return typeof pwd === "string" && pwd.length >= 8;
+}
+
+async function changeOwnPassword(req, res) {
+  try {
+    const { currentPassword, newPassword, userId: bodyUserId } = req.body || {};
+    // Preferimos el id del token:
+    const userId = req.user?.id ?? bodyUserId; // ⚠️ quitar bodyUserId en prod
+
+    if (!userId) return res.status(401).json({ error: "No autenticado" });
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: "Datos incompletos" });
+    }
+    if (!validatePassword(newPassword)) {
+      return res.status(400).json({ error: "La nueva contraseña es demasiado corta" });
+    }
+
+    // Traer hash actual
+    const [rows] = await db.query("SELECT id, password FROM users WHERE id = ? LIMIT 1", [userId]);
+    if (!rows.length) return res.status(404).json({ error: "Usuario no encontrado" });
+
+    const user = rows[0];
+
+    // Comparar contraseña actual
+    const ok = await bcrypt.compare(currentPassword, user.password);
+    if (!ok) {
+      return res.status(401).json({ error: "La contraseña actual es incorrecta" });
+    }
+
+    // Evitar misma contraseña
+    const same = await bcrypt.compare(newPassword, user.password);
+    if (same) {
+      return res.status(400).json({ error: "La nueva contraseña no puede ser igual a la actual" });
+    }
+
+    // Guardar nueva
+    const newHash = await bcrypt.hash(newPassword, 10);
+    await db.query("UPDATE users SET password = ? WHERE id = ?", [newHash, userId]);
+
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error("changeOwnPassword error:", err);
+    return res.status(500).json({ error: "Error interno" });
+  }
+}
+
+module.exports = { login,registrarUsuario, obtenerUsuarios, actualizarUsuario,borrarUsuario, resetPasswordUsuario, changeOwnPassword   };

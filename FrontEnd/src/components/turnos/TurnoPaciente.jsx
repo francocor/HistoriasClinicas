@@ -110,6 +110,7 @@ export default function TurnoPaciente({ modo = "profesional", doctores = [] }) {
           fecha: fechaTurno,
           doctor_id: doctorId,
           especialidad: especialidadSeleccionada,
+          cobro:parseFloat(cobro),
           creado_por: modo,
         }),
       });
@@ -119,7 +120,7 @@ export default function TurnoPaciente({ modo = "profesional", doctores = [] }) {
       Swal.fire({
         icon: "success",
         title: "Éxito",
-        text: "Turno y paciente registrados",
+        text: "Turno registrado",
       }).then(() => {
         window.location.reload();
       });

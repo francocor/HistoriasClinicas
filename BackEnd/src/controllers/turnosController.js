@@ -1,42 +1,60 @@
 const db = require("../config/db");
 
 const crearTurno = async (req, res) => {
-  const { paciente_id, fecha, doctor_id, especialidad, creado_por } = req.body;
+  const { paciente_id, fecha, doctor_id, especialidad, cobro, creado_por } = req.body;
 
-  if (!paciente_id || !fecha || !doctor_id || !creado_por) {
+  if (!paciente_id || !fecha || !doctor_id || !cobro || !creado_por) {
     return res.status(400).json({ message: "Faltan datos obligatorios" });
   }
 
   const fechaTurno = new Date(fecha);
   const hoy = new Date();
+  if (isNaN(fechaTurno.getTime())) {
+    return res.status(400).json({ message: "Fecha inválida" });
+  }
   if (fechaTurno < hoy) {
     return res.status(400).json({ message: "La fecha no puede ser anterior a hoy" });
   }
 
   try {
-    // Verificar existencia del doctor
+    // 1) Verificar existencia del paciente y obtener su obra_social
+    const [[paciente]] = await db.query(
+      "SELECT id, obra_social FROM pacientes WHERE id = ? LIMIT 1",
+      [paciente_id]
+    );
+    if (!paciente) {
+      return res.status(400).json({ message: "El paciente no existe" });
+    }
+    const obraSocialDelPaciente = paciente.obra_social ?? null;
+
+    // 2) Verificar existencia del doctor
     const [[existeDoctor]] = await db.query(
-      "SELECT id FROM profesionales WHERE id = ?",
+      "SELECT id FROM profesionales WHERE id = ? LIMIT 1",
       [doctor_id]
     );
-
     if (!existeDoctor) {
       return res.status(400).json({ message: "El doctor seleccionado no existe" });
     }
 
-    // Insertar el turno
+    // 3) Insertar el turno incluyendo obra_social
     const [result] = await db.execute(
-      `INSERT INTO turnos (paciente_id, fecha, doctor_id, especialidad, creado_por)
-       VALUES (?, ?, ?, ?, ?)`,
-      [paciente_id, fecha, doctor_id, especialidad, creado_por]
+      `INSERT INTO turnos (
+         paciente_id, fecha, doctor_id, especialidad, obra_social, creado_por, cobro
+       ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [paciente_id, fecha, doctor_id, especialidad ?? null, obraSocialDelPaciente, creado_por, cobro]
     );
 
-    res.status(201).json({ message: "Turno creado", turnoId: result.insertId });
+    return res.status(201).json({
+      message: "Turno creado",
+      turnoId: result.insertId,
+      obra_social: obraSocialDelPaciente
+    });
   } catch (err) {
     console.error("Error al crear turno:", err);
-    res.status(500).json({ message: "Error al crear turno" });
+    return res.status(500).json({ message: "Error al crear turno" });
   }
 };
+
 
 const obtenerTurnosProximos = async (req, res) => {
   try {
@@ -155,5 +173,26 @@ const obtenerTurnosDelDia = async (req, res) => {
     res.status(500).json({ message: "Error al obtener turnos del día" });
   }
 };
+const obtenerObrasSociales = async (req, res) => {
+  try {
+    const [rows] = await db.execute(`
+        SELECT DISTINCT obra_social
+FROM turnos
+WHERE obra_social IS NOT NULL
+  AND obra_social <> '';
+    `);
 
-module.exports = {obtenerTurnosAtendidosPorDoctor, crearTurno, obtenerTurnosProximos, actualizarTurno, obtenerTurnosDelDia };
+     const obras = [...new Set(
+      rows
+        .map(r => String(r.obra_social || '').trim())
+        .filter(Boolean)
+    )];
+
+    res.json(obras);
+  } catch (err) {
+    console.error("Error al obtener turnos:", err);
+    res.status(500).json({ message: "Error al obtener turnos" });
+  }
+};
+
+module.exports = {obtenerTurnosAtendidosPorDoctor, crearTurno, obtenerTurnosProximos, actualizarTurno, obtenerTurnosDelDia, obtenerObrasSociales };

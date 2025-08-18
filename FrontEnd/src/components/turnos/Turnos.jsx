@@ -16,27 +16,39 @@ export default function Turnos({ role = "profesional" }) {
   const [selectedDoctor, setSelectedDoctor] = useState([]);
   const [turnos, setTurnos] = useState([]);
   const [profesionales,setProfesionales]= useState([])
-  
+  const user= sessionStorage.getItem("user")
 
   useEffect(() => {
-    const fetchTurnos = async () => {
-      try {
-        const res = await fetch("http://localhost:4000/api/asistencias/presentes");
+  const fetchTurnos = async () => {
+    try {
+      // Normalizar user: objeto siempre
+      const u = typeof user === "string" ? JSON.parse(user) : user;
+
+      if (!u) return; // aún no cargó
+
+      if (u.role === "profesional") {
+        const res = await fetch(`http://localhost:4000/api/asistencias/presentesporId/${u.id}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         setTurnos(data);
-      } catch (err) {
-        console.error("Error al obtener turnos de asistencia:", err);
+      } else {
+        const res = await fetch("http://localhost:4000/api/asistencias/presentes");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        setTurnos(data);
       }
-    };
+    } catch (err) {
+      console.error("Error al obtener turnos de asistencia:", err);
+    }
+  };
 
-    fetchTurnos();
-  }, []);
+  fetchTurnos();
+}, [user]); 
   useEffect(() => {
   const fetchProfesionales = async () => {
     try {
       const res = await fetch("http://localhost:4000/api/profesionales");
       const data = await res.json();
-            console.log("Profesionales recibidos:", data); // 👈 Agregá esto
 
       setProfesionales(data);
     } catch (err) {

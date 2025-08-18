@@ -70,6 +70,21 @@ export default function AdminPanel() {
     }
     return false;
   };
+  const puedeResetear = (targetUser) => {
+  if (!user) return false;
+  // nadie puede resetearse a sí mismo
+  if (esMismoUsuario(targetUser)) return false;
+
+  if (user.role === "master") {
+    // master puede resetear a todos menos masters
+    return targetUser.role !== "master";
+  }
+  if (user.role === "admin") {
+    // admin NO puede resetear admin ni master
+    return !["admin", "master"].includes(targetUser.role);
+  }
+  return false;
+};
   // ----------------------------
 
   useEffect(() => {
@@ -229,6 +244,52 @@ export default function AdminPanel() {
       });
     }
   };
+  const handleResetPassword = async (id, nombreParaMostrar) => {
+  const result = await Swal.fire({
+    title: "¿Restablecer contraseña?",
+    html: `Se restablecerá la contraseña de <b>${nombreParaMostrar}</b> a <code>1234</code>.`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Sí, restablecer",
+    cancelButtonText: "Cancelar",
+    reverseButtons: true,
+    focusCancel: true,
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    const res = await fetch(
+      `http://localhost:4000/api/auth/usuarios/${id}/reset-password`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        // si preferís no enviar nada, podés quitar el body; el backend ya fija "1234"
+        body: JSON.stringify({ newPassword: "1234" }),
+      }
+    );
+
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      throw new Error(errBody?.error || "Error al restablecer contraseña");
+    }
+
+    Swal.fire({
+      icon: "success",
+      title: "Contraseña restablecida",
+      text: "La nueva contraseña es 1234.",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  } catch (err) {
+    console.error("Error al restablecer contraseña:", err);
+    Swal.fire({
+      icon: "error",
+      title: "No se pudo restablecer",
+      text: err.message || "Intentá nuevamente.",
+    });
+  }
+};
 
   return (
     <div className="p-6">
@@ -420,6 +481,19 @@ export default function AdminPanel() {
                         >
                           Editar
                         </Button>
+                        <Button
+  size="sm"
+  variant="outline"
+  disabled={!puedeResetear(u)}
+  onClick={() => handleResetPassword(u.id, u.name || u.username)}
+  title={
+    !puedeResetear(u)
+      ? "No tenés permisos para restablecerle la contraseña"
+      : undefined
+  }
+>
+  Restablecer contraseña
+</Button>
 
                         <Button
                           size="sm"

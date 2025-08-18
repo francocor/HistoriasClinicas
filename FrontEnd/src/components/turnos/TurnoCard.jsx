@@ -7,7 +7,7 @@ import Swal from "sweetalert2";
 
 export default function TurnoCard({id,patientId, patientName, appointmentDate, doctor }) {
   const navigate = useNavigate();
-   const user = JSON.parse(sessionStorageStorage.getItem("user"));
+   const user = JSON.parse(sessionStorage.getItem("user"));
   const role = user?.role;
 
   // Formatear fecha (ej: 14/06/2025 - 10 hs)
@@ -57,7 +57,7 @@ export default function TurnoCard({id,patientId, patientName, appointmentDate, d
           </span>
           
            {role !== "secretaria" && (
-            <BotonHarmonia onClick={() => navigate("/atencion", { state: { id, patientId } })}>
+            <BotonHarmonia onClick={() => navigate("/atencion", { state: { id, patientId, patientName } })}>
               Atender
             </BotonHarmonia>
           )}

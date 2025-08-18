@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import BotonHarmonia from "@/components/ui/botonHarmonia";
+import Swal from "sweetalert2";
+
 import {
   Dialog,
   DialogTrigger,
@@ -33,7 +35,7 @@ export default function Atencion() {
   const doctorId = doctor?.id;
 
   const { state } = useLocation();
-  const { id, patientId } = state || {};
+  const { id, patientId, patientName } = state || {};
 
   const handleArchivoSeleccionado = (e) => {
     const file = e.target.files[0];
@@ -83,11 +85,27 @@ export default function Atencion() {
 
       if (!historiaRes.ok) throw new Error("Error al guardar historia clínica");
 
+       // 4️⃣ Mostrar confirmación con SweetAlert
+    Swal.fire({
+      icon: "success",
+      title: "Atención completada",
+      text: "La historia clínica fue guardada correctamente.",
+      confirmButtonText: "Aceptar",
+      confirmButtonColor: "#179cba",
+    }).then(() => {
       navigate("/turnos");
-    } catch (err) {
-      console.error("Error:", err);
-      alert("No se pudo completar la atención del paciente.");
-    }
+    });
+
+  } catch (err) {
+    console.error("Error:", err);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "No se pudo completar la atención del paciente.",
+      confirmButtonText: "Aceptar",
+      confirmButtonColor: "#d33",
+    });
+  }
   };
 
   return (
@@ -109,7 +127,7 @@ export default function Atencion() {
             </div>
 
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-              <h2 className="text-xl sm:text-2xl font-sans font-normal">Nombre Paciente</h2>
+              <h2 className="text-xl sm:text-2xl font-sans font-normal">{patientName}</h2>
 
               <div className="flex flex-col items-end gap-2 w-full sm:w-auto">
                 <span className="text-sm sm:text-lg font-sans">Estudios y/o análisis</span>

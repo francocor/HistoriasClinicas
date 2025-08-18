@@ -135,7 +135,7 @@ export default function TurnoNuevoPaciente({ modo = "profesional", doctores = []
       if (!pacienteRes.ok) throw new Error("Error al crear paciente");
       const pacienteData = await pacienteRes.json();
       const pacienteId = pacienteData.pacienteId;
-
+      const cobro= parseFloat(formData.cobro)
       const fechaCompleta = `${formData.fecha}T${formData.hora}`;
       const turnoRes = await fetch("http://localhost:4000/api/turnos", {
         method: "POST",
@@ -145,6 +145,7 @@ export default function TurnoNuevoPaciente({ modo = "profesional", doctores = []
           fecha: fechaCompleta,
           doctor_id: doctorId,
           especialidad: especialidadSeleccionada,
+          cobro:cobro,
           creado_por: modo,
         }),
       });
