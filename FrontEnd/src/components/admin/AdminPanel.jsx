@@ -45,7 +45,8 @@ export default function AdminPanel() {
 
   const puedeModificar = (targetRole) => {
     if (user?.role === "master") return targetRole !== "master";
-    if (user?.role === "admin") return !["admin", "master"].includes(targetRole);
+    if (user?.role === "admin")
+      return !["admin", "master"].includes(targetRole);
     return false;
   };
 
@@ -71,20 +72,20 @@ export default function AdminPanel() {
     return false;
   };
   const puedeResetear = (targetUser) => {
-  if (!user) return false;
-  // nadie puede resetearse a sí mismo
-  if (esMismoUsuario(targetUser)) return false;
+    if (!user) return false;
+    // nadie puede resetearse a sí mismo
+    if (esMismoUsuario(targetUser)) return false;
 
-  if (user.role === "master") {
-    // master puede resetear a todos menos masters
-    return targetUser.role !== "master";
-  }
-  if (user.role === "admin") {
-    // admin NO puede resetear admin ni master
-    return !["admin", "master"].includes(targetUser.role);
-  }
-  return false;
-};
+    if (user.role === "master") {
+      // master puede resetear a todos menos masters
+      return targetUser.role !== "master";
+    }
+    if (user.role === "admin") {
+      // admin NO puede resetear admin ni master
+      return !["admin", "master"].includes(targetUser.role);
+    }
+    return false;
+  };
   // ----------------------------
 
   useEffect(() => {
@@ -183,7 +184,9 @@ export default function AdminPanel() {
       if (!res.ok) throw new Error("Error al actualizar usuario");
 
       const updated = await res.json();
-      setUsuarios((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
+      setUsuarios((prev) =>
+        prev.map((u) => (u.id === updated.id ? updated : u))
+      );
 
       cancelarEdicion();
 
@@ -221,7 +224,7 @@ export default function AdminPanel() {
     try {
       const res = await fetch(`http://localhost:4000/api/auth/usuarios/${id}`, {
         method: "DELETE",
-         headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
       });
 
       if (!res.ok) throw new Error("Error al eliminar usuario");
@@ -245,51 +248,51 @@ export default function AdminPanel() {
     }
   };
   const handleResetPassword = async (id, nombreParaMostrar) => {
-  const result = await Swal.fire({
-    title: "¿Restablecer contraseña?",
-    html: `Se restablecerá la contraseña de <b>${nombreParaMostrar}</b> a <code>1234</code>.`,
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "Sí, restablecer",
-    cancelButtonText: "Cancelar",
-    reverseButtons: true,
-    focusCancel: true,
-  });
+    const result = await Swal.fire({
+      title: "¿Restablecer contraseña?",
+      html: `Se restablecerá la contraseña de <b>${nombreParaMostrar}</b> a <code>1234</code>.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, restablecer",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+      focusCancel: true,
+    });
 
-  if (!result.isConfirmed) return;
+    if (!result.isConfirmed) return;
 
-  try {
-    const res = await fetch(
-      `http://localhost:4000/api/auth/usuarios/${id}/reset-password`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        // si preferís no enviar nada, podés quitar el body; el backend ya fija "1234"
-        body: JSON.stringify({ newPassword: "1234" }),
+    try {
+      const res = await fetch(
+        `http://localhost:4000/api/auth/usuarios/${id}/reset-password`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          // si preferís no enviar nada, podés quitar el body; el backend ya fija "1234"
+          body: JSON.stringify({ newPassword: "1234" }),
+        }
+      );
+
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody?.error || "Error al restablecer contraseña");
       }
-    );
 
-    if (!res.ok) {
-      const errBody = await res.json().catch(() => ({}));
-      throw new Error(errBody?.error || "Error al restablecer contraseña");
+      Swal.fire({
+        icon: "success",
+        title: "Contraseña restablecida",
+        text: "La nueva contraseña es 1234.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } catch (err) {
+      console.error("Error al restablecer contraseña:", err);
+      Swal.fire({
+        icon: "error",
+        title: "No se pudo restablecer",
+        text: err.message || "Intentá nuevamente.",
+      });
     }
-
-    Swal.fire({
-      icon: "success",
-      title: "Contraseña restablecida",
-      text: "La nueva contraseña es 1234.",
-      timer: 1500,
-      showConfirmButton: false,
-    });
-  } catch (err) {
-    console.error("Error al restablecer contraseña:", err);
-    Swal.fire({
-      icon: "error",
-      title: "No se pudo restablecer",
-      text: err.message || "Intentá nuevamente.",
-    });
-  }
-};
+  };
 
   return (
     <div className="p-6">
@@ -387,12 +390,28 @@ export default function AdminPanel() {
                     value={nuevoUsuario.matricula}
                     onChange={handleChange}
                   />
-                  <Input
-                    name="especialidad"
-                    placeholder="Especialidad"
+
+                  <Select
                     value={nuevoUsuario.especialidad}
-                    onChange={handleChange}
-                  />
+                    onValueChange={(especialidad) =>
+                      setNuevoUsuario((prev) => ({ ...prev, especialidad }))
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Seleccione una especialidad" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Nefrología">Nefrología</SelectItem>
+                      <SelectItem value="Medicina General">
+                        Medicina General
+                      </SelectItem>
+                      <SelectItem value="Psicología">Psicología</SelectItem>
+                      <SelectItem value="Nutrición">Nutrición</SelectItem>
+                      <SelectItem value="Asistente Social">
+                        Asistente Social
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </>
               )}
             </form>
@@ -443,11 +462,34 @@ export default function AdminPanel() {
                       </td>
                       <td className="p-2 capitalize">{usuarioEditado.role}</td>
                       <td className="p-2">
-                        <Input
-                          name="especialidad"
+                        <Select
                           value={usuarioEditado.especialidad || ""}
-                          onChange={handleEditChange}
-                        />
+                          onValueChange={(especialidad) =>
+                            setUsuarioEditado((prev) => ({
+                              ...prev,
+                              especialidad,
+                            }))
+                          }
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Seleccione una especialidad" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Nefrología">
+                              Nefrología
+                            </SelectItem>
+                            <SelectItem value="Medicina General">
+                              Medicina General
+                            </SelectItem>
+                            <SelectItem value="Psicología">
+                              Psicología
+                            </SelectItem>
+                            <SelectItem value="Nutrición">Nutrición</SelectItem>
+                            <SelectItem value="Asistente Social">
+                              Asistente Social
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
                       </td>
                       <td className="p-2">
                         <Input
@@ -460,7 +502,11 @@ export default function AdminPanel() {
                         <Button size="sm" onClick={guardarEdicion}>
                           Guardar
                         </Button>
-                        <Button size="sm" variant="outline" onClick={cancelarEdicion}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={cancelarEdicion}
+                        >
                           Cancelar
                         </Button>
                       </td>
@@ -482,25 +528,29 @@ export default function AdminPanel() {
                           Editar
                         </Button>
                         <Button
-  size="sm"
-  variant="outline"
-  disabled={!puedeResetear(u)}
-  onClick={() => handleResetPassword(u.id, u.name || u.username)}
-  title={
-    !puedeResetear(u)
-      ? "No tenés permisos para restablecerle la contraseña"
-      : undefined
-  }
->
-  Restablecer contraseña
-</Button>
+                          size="sm"
+                          variant="outline"
+                          disabled={!puedeResetear(u)}
+                          onClick={() =>
+                            handleResetPassword(u.id, u.name || u.username)
+                          }
+                          title={
+                            !puedeResetear(u)
+                              ? "No tenés permisos para restablecerle la contraseña"
+                              : undefined
+                          }
+                        >
+                          Restablecer contraseña
+                        </Button>
 
                         <Button
                           size="sm"
                           variant="destructive"
                           className="bg-red-600 text-white"
                           disabled={!puedeEliminar(u)}
-                          onClick={() => handleDeleteUser(u.id, u.name || u.username)}
+                          onClick={() =>
+                            handleDeleteUser(u.id, u.name || u.username)
+                          }
                           title={
                             !puedeEliminar(u)
                               ? "No tenés permisos para eliminar este usuario"
