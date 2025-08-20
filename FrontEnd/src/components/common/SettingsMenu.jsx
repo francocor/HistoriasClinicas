@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Dialog,
   DialogTrigger,
@@ -19,23 +19,32 @@ export default function SettingsMenu({ visible }) {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [saving, setSaving] = useState(false);
+  const formRef = useRef(null);
 
-  const handleGuardar = async () => {
-    // Validaciones rápidas en el cliente
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      Swal.fire("Campos incompletos", "Todos los campos son obligatorios.", "warning");
-      return;
+  // Revalida coincidencia (usamos trim para evitar falsos negativos por espacios pegados)
+  const validateMatch = () => {
+    const form = formRef.current;
+    const confirmEl = form?.elements?.namedItem("confirmPassword");
+    if (confirmEl) {
+      const a = String(newPassword ?? "").trim();
+      const b = String(confirmEl.value ?? "").trim();
+      if (a && b && a !== b) {
+        confirmEl.setCustomValidity("Las contraseñas no coinciden.");
+      } else {
+        confirmEl.setCustomValidity("");
+      }
     }
-    if (newPassword !== confirmPassword) {
-      Swal.fire("Atención", "Las contraseñas nuevas no coinciden.", "warning");
-      return;
-    }
-    if (newPassword.length < 8) {
-      Swal.fire("Atención", "La nueva contraseña debe tener al menos 8 caracteres.", "warning");
-      return;
-    }
-    if (newPassword === currentPassword) {
-      Swal.fire("Atención", "La nueva contraseña no puede ser igual a la actual.", "warning");
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Sincronizamos validaciones antes de checkValidity()
+    validateMatch();
+
+    const form = formRef.current;
+    if (!form.checkValidity()) {
+      form.reportValidity();
       return;
     }
 
@@ -56,12 +65,10 @@ export default function SettingsMenu({ visible }) {
         }),
       });
 
-      const text = await res.text();
-      let data;
-      try { data = JSON.parse(text); } catch { data = { error: text }; }
-
       if (!res.ok) {
-        throw new Error(data?.error || "No se pudo cambiar la contraseña");
+        const text = await res.text();
+        console.error("No se pudo cambiar la contraseña:", text);
+        return; // sin Swal de error: las validaciones quedan en el form
       }
 
       Swal.fire({
@@ -71,13 +78,13 @@ export default function SettingsMenu({ visible }) {
         showConfirmButton: false,
       });
 
-      // Limpio campos y cierro modal
+      // Limpio y cierro
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
       setOpen(false);
     } catch (err) {
-      Swal.fire("Error", String(err.message || err), "error");
+      console.error("Error al cambiar contraseña:", err);
     } finally {
       setSaving(false);
     }
@@ -105,42 +112,63 @@ export default function SettingsMenu({ visible }) {
               </DialogTitle>
             </DialogHeader>
 
-            <div className="space-y-4">
+            <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
+              {/* Contraseña actual: SOLO requerida (puede ser provisoria) */}
               <div>
                 <label className="text-sm font-medium text-gray-700">Contraseña actual</label>
                 <Input
                   type="password"
                   autoComplete="current-password"
+                  required
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   placeholder="Ingrese contraseña actual"
                 />
               </div>
 
+              {/* Nueva contraseña: reglas de fuerza + ayuda visible */}
               <div>
                 <label className="text-sm font-medium text-gray-700">Nueva contraseña</label>
                 <Input
                   type="password"
                   autoComplete="new-password"
+                  required
+                  minLength={8}
+                  pattern="^(?=.*[A-Z])(?=.*\d).{8,}$"
+                  title="Debe tener mínimo 8 caracteres, al menos 1 mayúscula y 1 número."
                   value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
+                  onChange={(e) => {
+                    setNewPassword(e.target.value);
+                    // Cada vez que cambia, revalidamos el match para limpiar warnings
+                    validateMatch();
+                  }}
                   placeholder="Ingrese nueva contraseña"
+                  aria-describedby="pwd-help"
                 />
+                <p id="pwd-help" className="text-xs text-gray-600 mt-1">
+                  Requisitos: mínimo 8 caracteres, al menos 1 mayúscula y 1 número.
+                </p>
               </div>
 
+              {/* Confirmación: required + setCustomValidity para mismatch */}
               <div>
                 <label className="text-sm font-medium text-gray-700">Confirmar nueva contraseña</label>
                 <Input
+                  name="confirmPassword"
                   type="password"
                   autoComplete="new-password"
+                  required
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    validateMatch();
+                  }}
                   placeholder="Confirme nueva contraseña"
                 />
               </div>
 
               <Button
-                onClick={handleGuardar}
+                type="submit"
                 disabled={saving}
                 className="w-full bg-cyan-600 text-white rounded-full hover:bg-cyan-700"
               >
@@ -148,11 +176,11 @@ export default function SettingsMenu({ visible }) {
               </Button>
 
               <DialogClose asChild>
-                <Button variant="ghost" className="w-full text-gray-600 hover:bg-gray-100 mt-2">
+                <Button type="button" variant="ghost" className="w-full text-gray-600 hover:bg-gray-100 mt-2">
                   Cancelar
                 </Button>
               </DialogClose>
-            </div>
+            </form>
           </DialogContent>
         </Dialog>
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import ConsultaCard from "./ConsultaCard";
+import ConsultaDocCard from "./ConsultaDocCard";
 
 export default function ConsultasList({ pacienteId }) {
   const [consultations, setConsultations] = useState([]);
@@ -10,7 +10,7 @@ export default function ConsultasList({ pacienteId }) {
     const fetchConsultas = async () => {
       try {
         const res = await fetch(
-          `http://localhost:4000/api/historias/paciente/${pacienteId}`
+          `http://localhost:4000/api/historias/pacienteFiles/${pacienteId}`
         );
 
         if (!res.ok) throw new Error("Error al obtener consultas");
@@ -36,16 +36,14 @@ export default function ConsultasList({ pacienteId }) {
       {paginadas.length > 0 ? (
         <>
           {paginadas.map((item) => (
-            <ConsultaCard
+            <ConsultaDocCard
               key={item.id}
               date={new Date(item.fecha).toLocaleDateString()}
               reason={item.motivo}
               doctor={`ID: ${item.doctor_id}`}
               diagnostico={item.diagnostico}
-              sintomas={item.sintomas}
-              parametros={item.parametros}
-              tratamiento={item.tratamiento}
-              medicamentos={item.medicamentos} 
+              tipo_archivo={item.tipo_archivo}
+              archivo={item.archivo} 
               nombre_archivo= {item.nombre_archivo}// o podés mostrar "Tu consulta" o el nombre si está incluido
             />
           ))}

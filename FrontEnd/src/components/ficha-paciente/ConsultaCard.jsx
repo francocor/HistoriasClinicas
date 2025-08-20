@@ -22,40 +22,41 @@ export default function ConsultaCard({
   parametros,
   tratamiento,
   medicamentos,
+  nombre_archivo,
 }) {
   const fileInputRef = useRef(null);
-  const [archivo, setArchivo] = useState(null);
+  // const [archivo, setArchivo] = useState(null);
   const cardRef = useRef(null);
 
-  const handleArchivoSeleccionado = (event) => {
-    const file = event.target.files[0];
-    if (file) setArchivo(file);
-  };
+  // const handleArchivoSeleccionado = (event) => {
+  //   const file = event.target.files[0];
+  //   if (file) setArchivo(file);
+  // };
 
-  const handleDescargarArchivo = () => {
-    if (archivo) {
-      const url = URL.createObjectURL(archivo);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = archivo.name;
-      link.click();
-      URL.revokeObjectURL(url);
-    }
-  };
+  // const handleDescargarArchivo = () => {
+  //   if (archivo) {
+  //     const url = URL.createObjectURL(archivo);
+  //     const link = document.createElement("a");
+  //     link.href = url;
+  //     link.download = archivo.name;
+  //     link.click();
+  //     URL.revokeObjectURL(url);
+  //   }
+  // };
 
-  const handleDescargarConsulta = async () => {
-    const element = cardRef.current;
-    const canvas = await html2canvas(element);
-    const imgData = canvas.toDataURL("image/png");
+  // const handleDescargarConsulta = async () => {
+  //   const element = cardRef.current;
+  //   const canvas = await html2canvas(element);
+  //   const imgData = canvas.toDataURL("image/png");
 
-    const pdf = new jsPDF();
-    const imgProps = pdf.getImageProperties(imgData);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+  //   const pdf = new jsPDF();
+  //   const imgProps = pdf.getImageProperties(imgData);
+  //   const pdfWidth = pdf.internal.pageSize.getWidth();
+  //   const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`consulta-${date.replace(/\//g, "-")}.pdf`);
-  };
+  //   pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+  //   pdf.save(`consulta-${date.replace(/\//g, "-")}.pdf`);
+  // };
 
   return (
     <Card
@@ -74,7 +75,7 @@ export default function ConsultaCard({
               </Button>
             </DialogTrigger>
 
-            <DialogContent className="w-[90vw] sm:w-[600px] max-h-[85vh] overflow-y-auto bg-white z-[9999] rounded-lg shadow-lg">
+            <DialogContent className="w-[90vw] sm:w-[600px] max-h-[100vh] overflow-y-auto bg-white z-[9999] rounded-lg shadow-lg">
               <DialogHeader>
                 <DialogTitle>Detalle de la Consulta</DialogTitle>
               </DialogHeader>
@@ -88,6 +89,7 @@ export default function ConsultaCard({
                 {diagnostico && <p><strong>Diagnóstico:</strong> {diagnostico}</p>}
                 {tratamiento && <p><strong>Tratamiento:</strong> {tratamiento}</p>}
                 {medicamentos && <p><strong>Medicamentos:</strong> {medicamentos}</p>}
+                {nombre_archivo && <p><strong>Documento:</strong> {nombre_archivo} </p>}
               </div>
 
               <DialogClose asChild>
@@ -110,9 +112,9 @@ export default function ConsultaCard({
             {/* Modal de documentos */}
             <Dialog>
               <DialogTrigger asChild>
-                <Button className="rounded-full px-4 bg-white text-black shadow hover:bg-gray-100 w-full sm:w-auto">
+                {/* <Button className="rounded-full px-4 bg-white text-black shadow hover:bg-gray-100 w-full sm:w-auto">
                   📁 Documentos
-                </Button>
+                </Button> */}
               </DialogTrigger>
 
               <DialogContent className="w-[90vw] sm:w-[480px] max-h-[85vh] overflow-y-auto bg-white rounded-lg shadow-lg z-[9999]">
@@ -120,7 +122,7 @@ export default function ConsultaCard({
                   <DialogTitle>Gestión de Documentos</DialogTitle>
                 </DialogHeader>
 
-                <div className="space-y-4">
+                {/* <div className="space-y-4">
                   {archivo ? (
                     <div className="text-sm text-gray-700">
                       <p className="font-medium">Documento actual:</p>
@@ -153,7 +155,7 @@ export default function ConsultaCard({
                     <Upload className="w-4 h-4" />
                     Cargar nuevo documento
                   </Button>
-                </div>
+                </div> */}
 
                 <DialogClose asChild>
                   <Button variant="ghost" className="mt-4 w-full text-gray-600">
@@ -164,12 +166,12 @@ export default function ConsultaCard({
             </Dialog>
 
             {/* Descargar consulta */}
-            <Button
+            {/* <Button
               onClick={handleDescargarConsulta}
               className="rounded-full px-4 text-sm bg-green-500 text-white shadow hover:bg-green-600 w-full sm:w-auto"
             >
               Descargar consulta
-            </Button>
+            </Button> */}
           </div>
         </div>
       </CardContent>

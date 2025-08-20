@@ -1,20 +1,32 @@
-import React from "react";
+// FichaPaciente.jsx
+import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import FichaPacienteHeader from "./FichaPacienteHeader";
 import ConsultasList from "./ConsultasList";
+import ConsultasDocsList from "./ConsultasDocsList";
 
 export default function FichaPaciente() {
   const { state } = useLocation();
   const pacienteId = state?.pacienteId;
 
+  const [view, setView] = useState("consultas"); // <- estado controlado en el padre
+
   return (
     <div className="w-full min-h-screen overflow-y-auto bg-white px-4 py-6">
       <div className="max-w-6xl mx-auto space-y-6">
-        <FichaPacienteHeader pacienteId={pacienteId} />
-        {pacienteId ? (
+        <FichaPacienteHeader
+          pacienteId={pacienteId}
+          view={view}             // <- PASAR view
+          setView={setView}       // <- PASAR setView
+        />
+        {!pacienteId ? (
+          <p className="text-center text-gray-500 mt-6">
+            No se encontró el ID del paciente.
+          </p>
+        ) : view === "consultas" ? (
           <ConsultasList pacienteId={pacienteId} />
         ) : (
-          <p className="text-center text-gray-500 mt-6">No se encontró el ID del paciente.</p>
+          <ConsultasDocsList pacienteId={pacienteId} />
         )}
       </div>
     </div>
