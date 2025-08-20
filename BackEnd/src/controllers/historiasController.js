@@ -75,6 +75,29 @@ const obtenerHistoriasPorPaciente = async (req, res) => {
     res.status(500).json({ message: "Error del servidor" });
   }
 };
+const obtenerArchivosPorPaciente = async (req, res) => {
+  const { pacienteId } = req.params;
+
+  try {
+    const [rows] = await db.execute(
+      `SELECT hc.*, p.nombre AS paciente, u.name AS doctor
+       FROM historias_clinicas hc
+       JOIN pacientes p ON hc.paciente_id = p.id
+       JOIN profesionales pr ON hc.doctor_id = pr.id
+       JOIN users u ON pr.user_id = u.id
+       WHERE hc.paciente_id = ?
+       and hc.archivo is not null
+       ORDER BY hc.fecha DESC`,
+      [pacienteId]
+    );
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Error al obtener historias por paciente:", error);
+    res.status(500).json({ message: "Error del servidor" });
+  }
+};
+
 
 // ✅ Obtener historias por doctor
 const obtenerHistoriasPorDoctor = async (req, res) => {
@@ -102,5 +125,6 @@ const obtenerHistoriasPorDoctor = async (req, res) => {
 module.exports = {
   crearHistoriaClinica,
   obtenerHistoriasPorPaciente,
-  obtenerHistoriasPorDoctor
+  obtenerHistoriasPorDoctor,
+  obtenerArchivosPorPaciente
 };
