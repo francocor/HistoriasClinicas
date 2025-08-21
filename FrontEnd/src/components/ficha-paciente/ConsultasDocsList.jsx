@@ -40,7 +40,7 @@ export default function ConsultasList({ pacienteId }) {
               key={item.id}
               date={new Date(item.fecha).toLocaleDateString()}
               reason={item.motivo}
-              doctor={`ID: ${item.doctor_id}`}
+              doctor={`Dr: ${item.doctor}`}
               diagnostico={item.diagnostico}
               tipo_archivo={item.tipo_archivo}
               archivo={item.archivo} 
