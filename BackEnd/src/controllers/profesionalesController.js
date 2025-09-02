@@ -14,10 +14,12 @@ const obtenerProfesionales = async (req, res) => {
         p.obras_sociales AS obrasSociales,
         p.plus,
         p.particular,
-        p.matricula
+        p.matricula,
+        u.role
       FROM users u
       JOIN profesionales p ON u.id = p.user_id
-      WHERE u.role = 'profesional'
+      WHERE (u.role = 'profesional' OR u.role = 'admin' OR u.role = 'master')
+        AND p.matricula IS NOT NULL AND p.matricula != ''
     `);
 
     res.json(rows);
